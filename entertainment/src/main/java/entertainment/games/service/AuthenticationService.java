@@ -1,5 +1,7 @@
 package entertainment.games.service;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7,7 +9,7 @@ import de.mkammerer.argon2.*;
 import entertainment.games.dao.UserDao;
 import entertainment.games.dto.UserDto;
 import entertainment.games.entity.User;
-import entertainment.games.enums.LoginReturnCode;
+import entertainment.games.enums.AccountReturnCode;
 
 @Service
 public class AuthenticationService {
@@ -16,12 +18,12 @@ public class AuthenticationService {
 	
 	public UserDto getUser(String username) {
 		UserDto userDto = new UserDto();
-		User user = userDao.getUserByUsername(username);
+		User user = userDao.findByUsername(username);
 		userDto.setUser(user);
 		return userDto;
 	}
 		
-	public LoginReturnCode authenticateUser(UserDto userDTO, String password) {
+	public AccountReturnCode authenticateUser(UserDto userDTO, String password) {
 		boolean successful = false;
 				
 		if (userDTO != null) {
@@ -33,21 +35,37 @@ public class AuthenticationService {
 		
 		if (!successful) {
 			
-			return LoginReturnCode.incorrectPassword;
+			return AccountReturnCode.INCORRECT_PASSWORD;
 		}
 		else {
 			//user authenticated, verify user account active
 		}
 		
-		return LoginReturnCode.success;
+		return AccountReturnCode.LOGIN_SUCCESSFUL;
 		
 	}
 	
-	public UserDto createNewUser(UserDto userDto) throws Exception {
+	public AccountReturnCode createNewUser(UserDto userDto) {
+		UserDto existingUserDto = getUser(userDto.getUser().getUsername());
 		
-		userDto.setUser(userDao.createNewUser(userDto));
+		if (existingUserDto != null && existingUserDto.getUser() != null) {
+			return AccountReturnCode.ACCOUNT_ALREADY_EXISTS;
+		}
 		
-		return userDto;
+		try {
+			User user = userDto.getUser();
+			String hashedPassword = hashPassword(user.getPassword());
+			user.setPassword(hashedPassword);
+			user.setCreateDate(new Date());
+			user.setUpdateDate(new Date());
+			userDao.save(user);	
+			return AccountReturnCode.ACCOUNT_CREATED;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return AccountReturnCode.ACCOUNT_CREATION_ERROR;
+		}
+		
 	}
 	
 	public static String hashPassword(String password) throws Exception {

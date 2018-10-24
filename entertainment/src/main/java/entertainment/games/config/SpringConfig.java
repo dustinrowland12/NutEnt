@@ -9,10 +9,13 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jndi.JndiTemplate;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -22,11 +25,10 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @Configuration
 @EnableWebMvc
-@EnableJpaRepositories
+@EnableJpaRepositories(basePackages = "entertainment.games.dao")
 @ComponentScan(basePackages = { 
 		"entertainment.games.controller", 
-		"entertainment.games.service",
-		"entertainment.games.dao"})
+		"entertainment.games.service" })
 public class SpringConfig implements WebMvcConfigurer {
 	@Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
@@ -57,7 +59,8 @@ public class SpringConfig implements WebMvcConfigurer {
 		}
 	}
 	
-	@Bean EntityManagerFactory entityManagerFactory() {
+	@Bean 
+	public EntityManagerFactory entityManagerFactory() {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		vendorAdapter.setGenerateDdl(false);
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
@@ -73,4 +76,17 @@ public class SpringConfig implements WebMvcConfigurer {
 		
 		return factory.getObject();
 	}
+	
+	@Bean 
+	public PlatformTransactionManager transactionManager (EntityManagerFactory emf) {
+		JpaTransactionManager transactionManager = new JpaTransactionManager();
+		transactionManager.setEntityManagerFactory(emf);
+		return transactionManager;
+	}
+	
+	@Bean
+	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+		return new PersistenceExceptionTranslationPostProcessor();
+	}
+	
 }

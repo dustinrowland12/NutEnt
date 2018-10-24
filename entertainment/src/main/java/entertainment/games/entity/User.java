@@ -27,6 +27,7 @@ public class User {
 	
 	public User() {
 		super();
+		name = new Name();
 	}
 	
 	public Integer getUserId() {

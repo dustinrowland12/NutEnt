@@ -7,16 +7,19 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import entertainment.games.dto.UserDto;
 import entertainment.games.entity.User;
-import entertainment.games.implement.Dao;
+import entertainment.games.implement.BaseDao;
 import entertainment.games.service.AuthenticationService;
 
 @Repository
-public class UserDao extends Dao {
+public interface UserDao extends JpaRepository<User, Integer> {
 	
+	User findByUsername(String username);
+	/*
 	public List<User> getAllUsers() {
 		List<User> users = new ArrayList<>();
 		
@@ -56,5 +59,5 @@ public class UserDao extends Dao {
 		}
 		
 		return user;
-	}
+	*/
 }

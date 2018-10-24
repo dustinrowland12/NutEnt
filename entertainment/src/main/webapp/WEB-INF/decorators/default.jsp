@@ -55,15 +55,19 @@
 								aria-expanded="false"> Games </a>
 								<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 									<a class="dropdown-item" href="<c:url value="/games/maze"/>">Maze</a>
-									<a class="dropdown-item"
-										href="<c:url value="games/minesweeper"/>">Minesweeper</a> <a
-										class="dropdown-item" href="<c:url value="/games/sudoku"/>">Sudoku</a>
+									<a class="dropdown-item" href="<c:url value="/games/minesweeper"/>">Minesweeper</a> 
+									<a class="dropdown-item" href="<c:url value="/games/sudoku"/>">Sudoku</a>
 								</div></li>
 						</ul>
 					</div>
-					<c:if test="${not empty USER_SESSION_DATA && not empty USER_SESSION_DATA.loggedInUser}">
-						<span id="loggedInUser" class="navbar-text">${USER_SESSION_DATA.loggedInUser.username} <a href="logout">(Logout)</a></span>
-				    </c:if>
+				    <c:choose>
+				    	<c:when test="${not empty USER_SESSION_DATA && not empty USER_SESSION_DATA.loggedInUser}">
+				    		<span id="loggedInUser" class="navbar-text">${USER_SESSION_DATA.loggedInUser.username} <a href="logout">(Logout)</a></span>
+				    	</c:when>
+				    	<c:otherwise>
+				    		<span class="navbar-text"><a href="<c:url value="/login"/>">Login</a> | <a href="<c:url value="/createUser"/>">New User</a></span>
+				    	</c:otherwise>
+				    </c:choose>
 				</nav>
 			</div>
 			<div class="content">
