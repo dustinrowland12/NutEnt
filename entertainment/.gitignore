@@ -39,6 +39,6 @@ Thumbs.db
 # Eclipse Files #
 /.project
 /.classpath
-/.settings/*
-/target/*
-/Users/*
+/.settings
+/target
+/Users
