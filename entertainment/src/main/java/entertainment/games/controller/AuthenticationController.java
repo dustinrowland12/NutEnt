@@ -52,15 +52,9 @@ public class AuthenticationController {
 			@ModelAttribute LoginForm loginForm)  {
 		
 		HttpSession session = request.getSession();
-		AccountReturnCode returnCode;
-		UserDto userDto = authService.getUser(loginForm.getUsername());
 		
-		if (userDto != null && userDto.getUser() != null) {
-			returnCode = authService.authenticateUser(userDto, loginForm.getPassword());
-		}
-		else {
-			returnCode = AccountReturnCode.INVALID_USER;
-		}
+		UserDto userDto = authService.authenticateUser(loginForm.getUsername(), loginForm.getPassword());
+		AccountReturnCode returnCode = userDto.getReturnCode();
 		
 		switch(returnCode) {
 			case LOGIN_SUCCESSFUL:
@@ -76,13 +70,14 @@ public class AuthenticationController {
 			case PASSWORD_EXPIRED:
 				MessageUtils.addMessage(request, "Password is Expired", MessageType.ALERT);
 				break;
-			case ACCOUNT_SUSPENDED:
-				MessageUtils.addMessage(request, "Account is Suspended", MessageType.ALERT);
+			case ACCOUNT_LOCKED:
+				MessageUtils.addMessage(request, "Account is Locked: " + userDto.getUser().getAccountLockedReasonCode().getReason(), MessageType.ALERT);
 				break;
 			case INVALID_USER:
 				MessageUtils.addMessage(request, "Username is Invalid", MessageType.ALERT);
 				break;
 			default:
+				MessageUtils.addMessage(request, "Unknown Error Occurred", MessageType.ALERT);
 				break;
 		}
 		
@@ -118,17 +113,15 @@ public class AuthenticationController {
 		AccountReturnCode returnCode;
 		HttpSession session = request.getSession();
 		
-		
-		UserDto userDto = new UserDto();
 		User user =  new User();
 		user.setUsername(userForm.getUsername());
 		user.setPassword(userForm.getPassword());
 		user.getName().setFirstName(userForm.getFirstName());
 		user.getName().setMiddleName(userForm.getMiddleName());
 		user.getName().setLastName(userForm.getLastName());
-		userDto.setUser(user);
 		
-		returnCode = authService.createNewUser(userDto);
+		UserDto userDto = authService.createNewUser(user);
+		returnCode = userDto.getReturnCode();
 		
 		switch(returnCode) {
 			case ACCOUNT_ALREADY_EXISTS:

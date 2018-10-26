@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -24,6 +26,13 @@ public class User {
 	private Name name;
 	private Date createDate;
 	private Date updateDate;
+	private Date lastLoginDate;
+	private Date passwordUpdateDate;
+	private Integer unsuccessfulLoginAttempts;
+	private boolean accountLocked;
+	@ManyToOne
+	@JoinColumn(name = "account_locked_reason_code")
+	private LuAccountLockedReasonCode accountLockedReasonCode;
 	
 	public User() {
 		super();
@@ -72,4 +81,36 @@ public class User {
 	public void setUpdateDate(Date updateDate) {
 		this.updateDate = updateDate;
 	}
+	public Date getLastLoginDate() {
+		return lastLoginDate;
+	}
+	public void setLastLoginDate(Date lastLoginDate) {
+		this.lastLoginDate = lastLoginDate;
+	}
+	public Date getPasswordUpdateDate() {
+		return passwordUpdateDate;
+	}
+	public void setPasswordUpdateDate(Date passwordUpdateDate) {
+		this.passwordUpdateDate = passwordUpdateDate;
+	}
+	public Integer getUnsuccessfulLoginAttempts() {
+		return unsuccessfulLoginAttempts;
+	}
+	public void setUnsuccessfulLoginAttempts(Integer unsuccessfulLoginAttempts) {
+		this.unsuccessfulLoginAttempts = unsuccessfulLoginAttempts;
+	}
+	public boolean isAccountLocked() {
+		return accountLocked;
+	}
+	public void setAccountLocked(boolean accountLocked) {
+		this.accountLocked = accountLocked;
+	}
+	public LuAccountLockedReasonCode getAccountLockedReasonCode() {
+		return accountLockedReasonCode;
+	}
+	public void setAccountLockedReasonCode(LuAccountLockedReasonCode accountLockedReasonCode) {
+		this.accountLockedReasonCode = accountLockedReasonCode;
+	}
+	
+	
 }
