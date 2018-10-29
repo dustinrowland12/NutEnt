@@ -2,6 +2,10 @@
     pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 
+<head>
+	<link rel="stylesheet" type="text/css" href="<c:url value="/resources/css/games/minesweeper.css"/>">
+</head>
+
 <body>
 	<h2>Minesweeper</h2>
 	<div id="minesweeper">
@@ -10,98 +14,72 @@
 			<span>Loading...</span>
 		</div>
 		<transition name="fade">
-		<template v-if="pageReady">
-		<div class="box">
-			<transition name="slide">
-			<template v-if="showInput">
-			<div class="form-area">
-				<h2>How to Play</h2>
-				<p>
-					Enter the dimensions you desire below. Dimensions must be between {{minDimension}} and {{maxDimension}}. Click New Game and a new Minesweeper game will be created.
-					Please <a href="#instructions" @click.prevent="openInstructions">click here</a> for instructions on how to play Minesweeper.
-				</p>
-				
-				<h2>Dimensions</h2>
-				<div class="form-input-area">
-					<div class="form-label required">
-						<label for="width">Width</label>
-					</div>
-					<div class="form-input">
-						<input name="width" v-model="inputWidth" @keydown.enter="newGame">
-					</div>
-				</div>
-				<div class="form-input-area">
-					<div class="form-label required">
-						<label for="length">Length</label>
-					</div>
-					<div class="form-input">
-						<input name="length" v-model="inputLength" @keydown.enter="newGame">
-					</div>
-				</div>
-				<div class="form-input-area">
-					<div class="form-label required">
-						<label for="mines">Mines</label>
-					</div>
-					<div class="form-input">
-						<input name="mines" v-model="inputMines" @keydown.enter="newGame">
-					</div>
-				</div>
-				<div class="button-section spacing">
-					<button class="form-button" @click="newGame">New Game</button>
-				</div>
-				<template v-if="showGame">
-				<div class="divider">
-					<hr/>
-				</div>
-				</template>
-			</div>
-			</template>
-			</transition>
-			<transition name="fade-both">
-			<template v-if="showGame">
-			<div class="game-section">
-				<div class="button-section split spacing">
-					<button class="form-button" @click="toggleInputArea">{{showHideButtonText}}</button>
-					<div class="button-section">
-						<div class="button-label">Size:</div>
-						<div>
-							<button class="form-button" @click="adjustCellSize('subtract')">&nbsp;<span class="fa fa-minus"></span>&nbsp;</button>
-							<button class="form-button" @click="adjustCellSize('add')">&nbsp;<span class="fa fa-plus"></span>&nbsp;</button>
+			<div v-if="pageReady">
+				<transition name="slide">
+					<div class="game-header" v-if="showInput">
+						<h3>How to Play</h2>
+						<p>
+							Enter the dimensions you desire below. Dimensions must be between {{minDimension}} and {{maxDimension}}. Click New Game and a new Minesweeper game will be created.
+							Please <a href="#instructions" @click.prevent="openInstructions">click here</a> for instructions on how to play Minesweeper.
+						</p>
+						<h3>Dimensions</h2>
+						<div class="form-group">
+							<label for="width">Width</label>
+							<input type="input" class="form-control" name="width" v-model="inputWidth" @keydown.enter="newGame">
+						</div>
+						<div class="form-group">
+							<label for="length">Length</label>
+							<input type="input" class="form-control" name="length" v-model="inputLength" @keydown.enter="newGame">
+						</div>
+						<div class="form-group">
+							<label for="mines">Mines</label>
+							<input type="input" class="form-control" name="mines" v-model="inputMines" @keydown.enter="newGame">
+						</div>
+						<button class="btn btn-primary" @click="newGame">New Game</button>
+						<div class="divider" v-if="showGame">
+							<hr/>
 						</div>
 					</div>
-				</div>
-				<div id="mine-sweeper-outer-container">
-					<div class="container center spacing" id="mine-sweeper-container" ref="gameContainer" :style="{ 'padding': gamePaddingWithUnit, 'box-shadow': gameContainerBoxShadow }">
-						<div class="minesweeper-tracker" id="mine-sweeper-timer" :style="{ 'padding': gameTrackerPaddingWithUnit, 'box-shadow': gameTrackerBoxShadow }">
-							<span :style="{ 'font-size': gameTrackerSizeWithUnit }">{{formattedTime}}</span>
+				</transition>
+				<transition name="fade-both">
+					<div class="game-section" v-if="showGame">
+						<div class="btn-toolbar justify-content-between">
+							<button class="btn btn-dark" @click="toggleInputArea">{{showHideButtonText}}</button>
+							<div class="btn-group" role="group" aria-label="Options">
+								<button class="btn btn-dark" @click="adjustCellSize('subtract')" title="Smaller">&nbsp;<span class="fa fa-minus"></span>&nbsp;</button>
+								<button class="btn btn-dark" @click="adjustCellSize('add')" title="Larger">&nbsp;<span class="fa fa-plus"></span>&nbsp;</button>
+							</div>
 						</div>
-						<div class="minesweeper-tracker" id="mine-sweeper-mines-remaining" :style="{ 'padding': gameTrackerPaddingWithUnit, 'box-shadow': gameTrackerBoxShadow }">
-							<span :style="{ 'font-size': gameTrackerSizeWithUnit }">{{minesRemaining}}</span>
+						<div id="mine-sweeper-outer-container" ref="gameContainer">
+							<div class="game-container" id="mine-sweeper-container" ref="game" :style="{ 'padding': gamePaddingWithUnit, 'box-shadow': gameContainerBoxShadow }">
+								<div class="minesweeper-tracker" id="mine-sweeper-timer" :style="{ 'padding': gameTrackerPaddingWithUnit, 'box-shadow': gameTrackerBoxShadow }">
+									<span :style="{ 'font-size': gameTrackerSizeWithUnit }">{{formattedTime}}</span>
+								</div>
+								<div class="minesweeper-tracker" id="mine-sweeper-mines-remaining" :style="{ 'padding': gameTrackerPaddingWithUnit, 'box-shadow': gameTrackerBoxShadow }">
+									<span :style="{ 'font-size': gameTrackerSizeWithUnit }">{{minesRemaining}}</span>
+								</div>
+								<div id="mine-sweeper" :style="{ 'grid-template-columns': gridTemplateColumns, 'grid-template-rows': gridTemplateRows }">
+									<template v-for="cell in cells">
+									<mine-cell :cell="cell" :cell-size="cellSize" :cell-size-unit="cellSizeUnit"></mine-cell>
+									</template>
+								</div>
+							</div>
 						</div>
-						<div id="mine-sweeper" ref="game" :style="{ 'grid-template-columns': gridTemplateColumns, 'grid-template-rows': gridTemplateRows }">
-							<template v-for="cell in cells">
-							<mine-cell :cell="cell" :cell-size="cellSize" :cell-size-unit="cellSizeUnit"></mine-cell>
+						<transition name="fade">
+							<template v-if="showWin">
+								<div class="container center">
+									<h3>Congratulations! You win!</h3>
+								</div>
 							</template>
-						</div>
+							<template v-if="showLose">
+								<div class="container center">
+									<h3>Sorry, you LOSE!</h3>
+								</div>
+							</template>
+						</transition>
 					</div>
-				</div>
-				<transition name="fade">
-				<template v-if="showWin">
-				<div class="container center">
-					<h3>Congratulations! You win!</h3>
-				</div>
-				</template>
-				<template v-if="showLose">
-				<div class="container center">
-					<h3>Sorry, you LOSE!</h3>
-				</div>
-				</template>
 				</transition>
 			</div>
-			</template>
-			</transition>
-		</div>
-		</template>
 		</transition>
 		<!-- Modal -->
 		<div class="modal fade" id="modalCompleteGame" tabindex="-1" role="dialog"

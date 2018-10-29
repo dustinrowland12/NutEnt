@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.google.gson.Gson;
-
 import entertainment.games.common.ContextConstants;
 import entertainment.games.common.MessageUtils;
 import entertainment.games.dto.UserDto;
@@ -29,7 +27,14 @@ public class AuthenticationController {
 	
 	@Autowired
 	protected AuthenticationService authService;
-	public Gson gson = new Gson();
+	
+	//jsp pages
+	private String page_home = "index";
+	private String page_create_user = "authentication/create_user";
+	private String page_login = "authentication/login";
+	//private String page_profile = "authentication/profile";
+	private String page_profile = "index";
+	private String page_reset_password = "authentication/reset_password";
 	
 	@GetMapping(value = "/login")
 	public String login(
@@ -42,7 +47,7 @@ public class AuthenticationController {
 		
 		model.addAttribute(loginForm);
 		
-		return "authentication/login";
+		return page_login;
 	}
 	
 	@PostMapping(value = "/login")
@@ -63,7 +68,7 @@ public class AuthenticationController {
 				userSessionData.setLoggedIn(true);
 				session.setAttribute(ContextConstants.USER_SESSION_DATA, userSessionData);
 				MessageUtils.addMessage(request, "Logged in successfully!", MessageType.CONFIRMATION);
-				break;
+				return page_home;
 			case INCORRECT_PASSWORD:
 				MessageUtils.addMessage(request, "Password is Incorrect", MessageType.ALERT);
 				break;
@@ -83,7 +88,7 @@ public class AuthenticationController {
 		
 		model.addAttribute(loginForm);
 		
-		return "authentication/login";
+		return page_login;
 	}
 	
 	@RequestMapping(value="/logout")
@@ -91,7 +96,7 @@ public class AuthenticationController {
 		HttpSession session = request.getSession();
 		MessageUtils.addMessage(request, "Logged Out Successfully", MessageType.CONFIRMATION);
 		session.removeAttribute(ContextConstants.USER_SESSION_DATA);
-		return "index";
+		return page_home;
 	}
 	
 	@GetMapping(value = "/createUser")
@@ -99,7 +104,7 @@ public class AuthenticationController {
 			Model model,
 			HttpServletRequest request)  {
 		
-		String returnPage = "authentication/create_user";
+		String returnPage = page_create_user;
 		return returnPage;
 	}
 	
@@ -109,7 +114,7 @@ public class AuthenticationController {
 			HttpServletRequest request,
 			@ModelAttribute UserForm userForm)  {
 		
-		String returnPage = "authentication/create_user";
+		String returnPage = page_create_user;
 		AccountReturnCode returnCode;
 		HttpSession session = request.getSession();
 		
@@ -137,7 +142,78 @@ public class AuthenticationController {
 				userSessionData.setLoggedIn(true);
 				session.setAttribute(ContextConstants.USER_SESSION_DATA, userSessionData);
 				MessageUtils.addMessage(request, "Account created successfully!", MessageType.CONFIRMATION);
-				returnPage = "index";
+				returnPage = page_home;
+				break;
+			default:
+				break;
+		}
+		
+		model.addAttribute(userForm);
+		
+		return returnPage;
+	}
+	
+	@GetMapping(value = "/resetPassword")
+	public String resetPassword(
+			Model model,
+			HttpServletRequest request)  {
+		
+		HttpSession session = request.getSession();
+		UserSessionDto userSessionData = (UserSessionDto) session.getAttribute(ContextConstants.USER_SESSION_DATA);
+		UserForm userForm = new UserForm();
+		
+		if (userSessionData != null && userSessionData.getLoggedInUser() != null) {
+			User loggedInUser = userSessionData.getLoggedInUser();
+			userForm.setUsername(loggedInUser.getUsername());
+		}
+		
+		model.addAttribute(userForm);
+		String returnPage = page_reset_password;
+		return returnPage;
+	}
+	
+	@PostMapping(value = "/resetPassword")
+	public String resetPassword(
+			Model model,
+			HttpServletRequest request,
+			@ModelAttribute UserForm userForm)  {
+		
+		String returnPage = page_reset_password;
+		model.addAttribute(userForm);
+		
+		if (!userForm.getNewPassword().equals(userForm.getNewPasswordConfirmation())) {
+			MessageUtils.addMessage(request, "New Password does not match new password confirmation field", MessageType.ALERT);
+			return returnPage;
+		}
+		
+		AccountReturnCode returnCode;
+		HttpSession session = request.getSession();
+				
+		UserSessionDto userSessionData = (UserSessionDto) session.getAttribute(ContextConstants.USER_SESSION_DATA);
+
+		if (userSessionData == null || userSessionData.getLoggedInUser() == null) {
+			MessageUtils.addMessage(request, "You must login to update your password", MessageType.ALERT);
+		}
+		
+		User loggedInUser = userSessionData.getLoggedInUser();
+
+		UserDto userDto = authService.updatePassword(loggedInUser.getUsername(), userForm.getPassword(), userForm.getNewPassword());
+		returnCode = userDto.getReturnCode();
+		
+		switch(returnCode) {
+			case INVALID_USER:
+				MessageUtils.addMessage(request, "An account with username '" + userForm.getUsername() + "' does not exist", MessageType.ALERT);
+				break;
+			case INCORRECT_PASSWORD:
+				MessageUtils.addMessage(request, "The password you entered is incorrect", MessageType.ALERT);
+				break;
+			case PASSWORD_UPDATED:
+				userDto = authService.getUser(loggedInUser.getUsername());
+				userSessionData.setUserDto(userDto);
+				userSessionData.setLoggedIn(true);
+				session.setAttribute(ContextConstants.USER_SESSION_DATA, userSessionData);
+				MessageUtils.addMessage(request, "Password updated successfully!", MessageType.CONFIRMATION);
+				returnPage = page_profile;
 				break;
 			default:
 				break;

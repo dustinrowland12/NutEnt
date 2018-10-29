@@ -137,16 +137,16 @@ var vm = new Vue({
 			this.updateGameContainerWidth();
 		},
 		autoAdjustCellSize: function () {
-			var mazeWidth = this.$refs.maze != null ? this.$refs.maze.offsetWidth : 0;
+			var gameWidth = this.$refs.game != null ? this.$refs.game.offsetWidth : 0;
 			
-			if (this.gameContainerWidth <= mazeWidth && this.cellSize > this.minCellSize) {
+			if (this.gameContainerWidth <= gameWidth && this.cellSize > this.minCellSize) {
 				this.adjustCellSize("subtract");
 			}
 		},
 		updateGameContainerWidth: function () {
 			var self = this;
 			self.$nextTick(function () {
-				this.gameContainerWidth = this.$refs.mazeContainer != null ? $(this.$refs.mazeContainer).width() : 0;
+				this.gameContainerWidth = this.$refs.gameContainer != null ? $(this.$refs.gameContainer).width() : 0;
 			});
 		},
 		toggleInputArea: function () {
@@ -177,6 +177,7 @@ var vm = new Vue({
 			self.resetGame();
 			self.$nextTick(function () {
 				self.createGame();
+				self.showInput = false;
 				self.showGame = true;
 				self.updateGameContainerWidth();
 			});

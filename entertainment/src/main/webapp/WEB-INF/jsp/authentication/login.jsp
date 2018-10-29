@@ -13,6 +13,7 @@
 				<input type="password" class="form-control" name="password" value="${loginForm.password}">
 			</div>
 			<input type="submit" class="btn btn-primary" value="Login"/>
+			<a class="btn btn-secondary" href="#">Forgot Password</a>
 		</fieldset>
 	</form>
 </body>

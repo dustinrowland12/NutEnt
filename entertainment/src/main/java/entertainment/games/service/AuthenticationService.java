@@ -103,13 +103,16 @@ public class AuthenticationService {
 	}
 	
 	@Transactional
-	public UserDto updatePassword(UserDto userDto, String originalPassword, String newPassword) {
-		if (userDto == null || userDto.getUser() == null) {
-			userDto.setReturnCode(AccountReturnCode.UNKNOWN_ERROR);
-			return userDto;
-		}
-		
+	public UserDto updatePassword(String username, String originalPassword, String newPassword) {
+		UserDto userDto = new UserDto();
+
 		try {
+			//get latest user info
+			userDto = getUser(username);
+			if (userDto == null || userDto.getUser() == null) {
+				userDto.setReturnCode(AccountReturnCode.INVALID_USER);
+				return userDto;
+			}
 			User user = userDto.getUser();
 			//verify user's original password
 			boolean verified = verifyPassword(user, originalPassword);

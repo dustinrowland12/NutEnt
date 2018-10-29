@@ -18,7 +18,7 @@ Vue.component('grid-cell', {
 });
 
 //main component
-new Vue({
+var vm = new Vue({
 	el: '#vue-maze',
 	data: {
 		cells: [],
@@ -33,8 +33,19 @@ new Vue({
 		cellSizeUnit: "em",
 		minCellSize: 1,
 		maxCellSize: 5,
-		mazeContainerWidth: 0,
+		gameContainerWidth: 0,
 		cursor: new Cursor(),
+		cursorIcons: [
+			{ className: 'fas fa-fighter-jet', rotate: true },
+			{ className: 'fas fa-dragon', rotate: true },
+			{ className: 'fas fa-chess-rook', rotate: false },
+			{ className: 'fas fa-dog', rotate: true },
+			{ className: 'fas fa-truck-monster', rotate: true },
+			{ className: 'fas fa-ghost', rotate: false },
+			{ className: 'fas fa-sun fa-spin', rotate: false}			
+		],
+		cursorIcon: "",
+		cursorDirection: WallType.right,
 		showMazeAreaInput: true,
 		showMaze: false,
 		showAll: false,
@@ -42,9 +53,80 @@ new Vue({
 	mounted: function () {
 		var self = this;
 		self.showAll = true;
+		self.cursorIcon = self.cursorIcons[Math.floor(Math.random()*self.cursorIcons.length)];
 		self.$nextTick(function () {
-			window.addEventListener('resize', self.updateMazeContainerWidth);
+			window.addEventListener('resize', self.updateGameContainerWidth);
 		});
+	},
+	computed: {
+		mazeArea: function () {
+			return isInt(this.length) && isInt(this.width) ? this.length * this.width : 0;
+		},
+		totalNumberCells: function () {
+			return this.cells.length;
+		},
+		gridTemplateColumns: function () {
+			return "repeat(" + this.width + ", " + this.cellSizeWithUnit + ")";
+		},
+		gridTemplateRows: function () {
+			return "repeat(" + this.length +  ", " + this.cellSizeWithUnit + ")";
+		},
+		startCell: function () {
+			return _.find(this.cells, function(cell) { 
+				return cell.isStart == true 
+			});
+		},
+		endCell: function () {
+			return _.find(this.cells, function(cell) { 
+				return cell.isEnd == true 
+			});
+		},
+		cellsRemaining: function () {
+			return _.some(this.cells, { 'visited': false });
+		},
+		complete: function () {
+			if (this.cursor == null || this.endCell == null) {
+				return false;
+			}
+			return this.cursor.x == this.endCell.x && this.cursor.y == this.endCell.y;
+		},
+		showHideButtonText: function () {
+			return this.showMazeAreaInput ? "Only Show Maze" : "Show All";
+		},
+		cellSizeWithUnit: function () {
+			return this.cellSize + this.cellSizeUnit;
+		},
+		cursorSizeWithUnit: function () {
+			return (this.cellSize * .65) + this.cellSizeUnit;
+		},
+		mazeBorderWidth: function () {
+			return (this.cellSize / 2) + this.cellSizeUnit;
+		},
+		cursorButtonClasses: function() {
+			return {
+				active: this.cursor.active, 
+				complete: this.complete
+			};
+		},
+		cursorDirectionClass: function() {
+			var className;
+			
+			if (this.cursorIcon.rotate) {
+				switch (this.cursorDirection) {
+					case WallType.bottom:
+						className = 'fa-rotate-90';
+						break;
+					case WallType.left:
+						className = 'fa-flip-horizontal';
+						break;
+					case WallType.top:
+						className = 'fa-rotate-270';
+						break;
+				}
+			}
+			
+			return className;
+		}
 	},
 	watch: {
 		complete: function (val) {
@@ -57,7 +139,7 @@ new Vue({
 				});
 			}
 		},
-		mazeContainerWidth: function () {
+		gameContainerWidth: function () {
 			this.autoAdjustCellSize();
 		}
 	},
@@ -70,19 +152,19 @@ new Vue({
 				this.cellSize = this.cellSize - .5;
 			}
 			
-			this.updateMazeContainerWidth();
+			this.updateGameContainerWidth();
 		},
 		autoAdjustCellSize: function () {
-			var mazeWidth = this.$refs.maze != null ? this.$refs.maze.offsetWidth : 0;
+			var gameWidth = this.$refs.game != null ? this.$refs.game.offsetWidth : 0;
 			
-			if (this.mazeContainerWidth <= mazeWidth && this.cellSize > this.minCellSize) {
+			if (this.gameContainerWidth <= gameWidth && this.cellSize > this.minCellSize) {
 				this.adjustCellSize("subtract");
 			}
 		},
-		updateMazeContainerWidth: function () {
+		updateGameContainerWidth: function () {
 			var self = this;
 			self.$nextTick(function () {
-				this.mazeContainerWidth = this.$refs.mazeContainer != null ? $(this.$refs.mazeContainer).width() : 0;
+				this.gameContainerWidth = this.$refs.gameContainer != null ? $(this.$refs.gameContainer).width() : 0;
 			});
 		},
 		toggleInputArea: function () {
@@ -108,18 +190,22 @@ new Vue({
 			self.validateCoordinates();
 		},
 		initialize: function () {
-			var self = this;
-			self.resetMaze();
-			self.createMaze();
-			self.initializeCursor();
-			self.showMaze = true;
-			self.updateMazeContainerWidth();
-			self.$nextTick(function(){self.$refs.cursor.focus();});
+			this.resetMaze();
+			this.createMaze();
+			this.initializeCursor();
+			this.showMaze = true;
+			this.showMazeAreaInput = false;
+			this.updateGameContainerWidth();
+			this.$nextTick(this.setCursorFocus);
+		},
+		setCursorFocus: function() {
+			this.$refs.cursor.focus();
 		},
 		resetMaze: function () {
 			this.cells = [];
 			this.cellStack = [];
 			this.cursor = new Cursor();
+			this.setCursorDirection(WallType.right);
 		},
 		createMaze: function () {
 			this.width = this.inputWidth;
@@ -342,6 +428,7 @@ new Vue({
 		moveCursor: function (wallType) {
 			if (this.cursor.movable) {
 				var cell = this.getCell(this.cursor.x, this.cursor.y);
+				this.setCursorDirection(wallType);
 				switch(wallType) {
 					case WallType.right:
 						if (!cell.right.isVisible && !cell.right.isEdge) {
@@ -384,9 +471,32 @@ new Vue({
 			self.length = width;
 			self.width = length;
 			
+			//update cursor direction
+			switch(self.cursorDirection) {
+				case WallType.left:
+					this.setCursorDirection(WallType.top);
+					break;
+				case WallType.top:
+					this.setCursorDirection(WallType.right);
+					break;
+				case WallType.right:
+					this.setCursorDirection(WallType.bottom);
+					break;
+				case WallType.bottom:
+					this.setCursorDirection(WallType.left);
+					break;
+			}
+			
 			//set focus to cursor
-			self.updateMazeContainerWidth();
+			self.updateGameContainerWidth();
 			self.$nextTick(function(){self.$refs.cursor.focus();});
+		},
+		setCursorDirection: function(direction) {
+			this.cursorDirection = direction;
+		},
+		updateCursorIcon: function(icon) {
+			this.cursorIcon = icon;
+			this.$nextTick(this.setCursorFocus);
 		},
 		getTransposedCells: function (cells) {
 			var self = this;
@@ -428,51 +538,6 @@ new Vue({
 			newCursor.movable = cursor.movable;
 			
 			return newCursor;
-		}
-	},
-	computed: {
-		mazeArea: function () {
-			return isInt(this.length) && isInt(this.width) ? this.length * this.width : 0;
-		},
-		totalNumberCells: function () {
-			return this.cells.length;
-		},
-		gridTemplateColumns: function () {
-			return "repeat(" + this.width + ", " + this.cellSizeWithUnit + ")";
-		},
-		gridTemplateRows: function () {
-			return "repeat(" + this.length +  ", " + this.cellSizeWithUnit + ")";
-		},
-		startCell: function () {
-			return _.find(this.cells, function(cell) { 
-				return cell.isStart == true 
-			});
-		},
-		endCell: function () {
-			return _.find(this.cells, function(cell) { 
-				return cell.isEnd == true 
-			});
-		},
-		cellsRemaining: function () {
-			return _.some(this.cells, { 'visited': false });
-		},
-		complete: function () {
-			if (this.cursor == null || this.endCell == null) {
-				return false;
-			}
-			return this.cursor.x == this.endCell.x && this.cursor.y == this.endCell.y;
-		},
-		showHideButtonText: function () {
-			return this.showMazeAreaInput ? "Only Show Maze" : "Show All";
-		},
-		cellSizeWithUnit: function () {
-			return this.cellSize + this.cellSizeUnit;
-		},
-		smileySizeWithUnit: function () {
-			return (this.cellSize * .65) + this.cellSizeUnit;
-		},
-		mazeBorderWidth: function () {
-			return (this.cellSize / 2) + this.cellSizeUnit;
 		}
 	}
 });
