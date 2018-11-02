@@ -11,7 +11,6 @@ public class MazeController {
        
 	@GetMapping("/maze")
 	public String maze(Model model) {
-		// TODO Auto-generated method stub
 		System.out.println("Maze page output");
 		return "games/maze";
 	}
