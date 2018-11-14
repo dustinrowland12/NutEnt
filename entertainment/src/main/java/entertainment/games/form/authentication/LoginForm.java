@@ -1,7 +1,15 @@
 package entertainment.games.form.authentication;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class LoginForm {
+	
+	@NotNull
+	@Size(min=1, max=256)
 	protected String username;
+	@NotNull
+	@Size(min=1, max=256)
 	protected String password;
 	
 	public LoginForm() {

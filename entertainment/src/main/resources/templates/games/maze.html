@@ -1,11 +1,9 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
-
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+	data-layout-decorate="~{layout}">
 <head>
-	<link rel="stylesheet" type="text/css" href="<c:url value="/resources/css/games/maze.css"/>">
+	<link rel="stylesheet" type="text/css" th:href="@{/css/games/maze.css}">
 </head>
-<body>
+<th:block data-layout-fragment="content">
 	<h2>Maze</h2>
 	<div id="vue-maze">
 		<div class="loader" v-if="showAll != true">
@@ -102,14 +100,15 @@
 		</div>
 	</div>
 	<!-- common functions -->
-	<script type="text/javascript" src="<c:url value="/resources/js/common/utils.js"/>"></script>
+	<script type="text/javascript" th:src="@{/js/common/utils.js}"></script>
 	<!-- enum dependencies -->
-	<script type="text/javascript" src="<c:url value="/resources/js/enums/maze-wall-type.js"/>"></script>
+	<script type="text/javascript" th:src="@{/js/enums/maze-wall-type.js}"></script>
 	<!-- model dependencies -->
-	<script type="text/javascript" src="<c:url value="/resources/js/models/maze-cell.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/resources/js/models/maze-cursor.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/resources/js/models/maze-wall.js"/>"></script>
+	<script type="text/javascript" th:src="@{/js/models/maze-cell.js}"></script>
+	<script type="text/javascript" th:src="@{/js/models/maze-cursor.js}"></script>
+	<script type="text/javascript" th:src="@{/js/models/maze-wall.js}"></script>
 	<!-- Vue components -->
-	<script type="text/javascript" src="<c:url value="/resources/js/components/maze.js"/>"></script>
+	<script type="text/javascript" th:src="@{/js/components/maze.js}"></script>
 	
-</body>
+</th:block>
+</html>

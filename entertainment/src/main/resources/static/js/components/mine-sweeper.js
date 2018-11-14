@@ -461,11 +461,6 @@ var vm = new Vue({
 		gameTrackerPaddingWithUnit: function () {
 			return (this.cellSize / 4) + this.cellSizeUnit;
 		},
-		gameContainerBoxShadow: function () {
-			var style = (this.cellSize * .2) + this.cellSizeUnit + " " + (this.cellSize * .2) + this.cellSizeUnit + " " + (this.cellSize * .2) + this.cellSizeUnit + " #222333, "
-				+ (this.cellSize * -.2) + this.cellSizeUnit + " " + (this.cellSize * -.2) + this.cellSizeUnit + " " + (this.cellSize * .2) + this.cellSizeUnit + " #fff";
-			return style;
-		},
 		gameTrackerBoxShadow: function () {
 			var style = (this.cellSize * .025) + this.cellSizeUnit + " " + (this.cellSize * .025) + this.cellSizeUnit + " " + (this.cellSize * 0) + this.cellSizeUnit + " #fff inset, "
 				+ (this.cellSize * -.05) + this.cellSizeUnit + " " + (this.cellSize * -.05) + this.cellSizeUnit + " " + (this.cellSize * 0) + this.cellSizeUnit + " #222333 inset";

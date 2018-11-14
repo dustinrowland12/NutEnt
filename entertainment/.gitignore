@@ -38,7 +38,11 @@ Thumbs.db
 
 # Eclipse Files #
 /.project
+/.tern-project
 /.classpath
 /.settings
 /target
 /Users
+
+# Environment-specific settings
+/application.properties

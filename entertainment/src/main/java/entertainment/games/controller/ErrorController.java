@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class ErrorController {
+public class ErrorController implements org.springframework.boot.web.servlet.error.ErrorController {
 	
-    @RequestMapping(value = "error")
-    public ModelAndView renderErrorPage(HttpServletRequest httpRequest) {
+    @RequestMapping(value = "/error")
+    public ModelAndView handleError(HttpServletRequest httpRequest) {
          
         ModelAndView errorPage = new ModelAndView("error");
         String errorMsg = "";
@@ -34,6 +34,7 @@ public class ErrorController {
                 break;
             }
         }
+        System.out.println(errorMsg);
         errorPage.addObject("errorMsg", errorMsg);
         return errorPage;
     }
@@ -41,5 +42,10 @@ public class ErrorController {
     private int getErrorCode(HttpServletRequest httpRequest) {
         return (Integer) httpRequest
           .getAttribute("javax.servlet.error.status_code");
+    }
+    
+    @Override
+    public String getErrorPath() {
+        return "/error";
     }
 }

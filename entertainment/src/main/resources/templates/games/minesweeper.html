@@ -1,12 +1,9 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
-
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+	data-layout-decorate="~{layout}">
 <head>
-	<link rel="stylesheet" type="text/css" href="<c:url value="/resources/css/games/minesweeper.css"/>">
+	<link rel="stylesheet" type="text/css" th:href="@{/css/games/minesweeper.css}">
 </head>
-
-<body>
+<th:block data-layout-fragment="content">
 	<h2>Minesweeper</h2>
 	<div id="minesweeper">
 		<div class="loader" v-if="pageReady != true">
@@ -51,7 +48,7 @@
 							</div>
 						</div>
 						<div id="mine-sweeper-outer-container" ref="gameContainer">
-							<div class="game-container" id="mine-sweeper-container" ref="game" :style="{ 'padding': gamePaddingWithUnit, 'box-shadow': gameContainerBoxShadow }">
+							<div class="game-container" id="mine-sweeper-container" ref="game" :style="{ 'padding': gamePaddingWithUnit }">
 								<div class="minesweeper-tracker" id="mine-sweeper-timer" :style="{ 'padding': gameTrackerPaddingWithUnit, 'box-shadow': gameTrackerBoxShadow }">
 									<span :style="{ 'font-size': gameTrackerSizeWithUnit }">{{formattedTime}}</span>
 								</div>
@@ -60,20 +57,20 @@
 								</div>
 								<div id="mine-sweeper" :style="{ 'grid-template-columns': gridTemplateColumns, 'grid-template-rows': gridTemplateRows }">
 									<template v-for="cell in cells">
-									<mine-cell :cell="cell" :cell-size="cellSize" :cell-size-unit="cellSizeUnit"></mine-cell>
+									<mine-cell :cell="cell" :cell-size="cellSize" :cell-size-unit="cellSizeUnit" style="--aspect-ratio: 1/1;"></mine-cell>
 									</template>
 								</div>
 							</div>
 						</div>
 						<transition name="fade">
 							<template v-if="showWin">
-								<div class="container center">
-									<h3>Congratulations! You win!</h3>
+								<div class="game-container">
+									<h4>Congratulations! You win!</h4>
 								</div>
 							</template>
 							<template v-if="showLose">
-								<div class="container center">
-									<h3>Sorry, you LOSE!</h3>
+								<div class="game-container">
+									<h4>Sorry, you LOSE!</h4>
 								</div>
 							</template>
 						</transition>
@@ -149,13 +146,13 @@
 		</div>
 	</div>
 	<!-- common functions -->
-	<script type="text/javascript" src="<c:url value="/resources/js/common/utils.js"/>"></script>
+	<script type="text/javascript" th:src="@{/js/common/utils.js}"></script>
 	<!-- enum dependencies -->
-	<script type="text/javascript" src="<c:url value="/resources/js/enums/direction.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/resources/js/enums/mine-cell-status.js"/>"></script>
+	<script type="text/javascript" th:src="@{/js/enums/direction.js}"></script>
+	<script type="text/javascript" th:src="@{/js/enums/mine-cell-status.js}"></script>
 	<!-- model dependencies -->
-	<script type="text/javascript" src="<c:url value="/resources/js/models/mine-cell.js"/>"></script>
+	<script type="text/javascript" th:src="@{/js/models/mine-cell.js}"></script>
 	<!-- Vue components -->
-	<script type="text/javascript" src="<c:url value="/resources/js/components/mine-sweeper.js"/>"></script>
-</body>
+	<script type="text/javascript" th:src="@{/js/components/mine-sweeper.js}"></script>
+</th:block>
 </html>

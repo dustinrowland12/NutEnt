@@ -4,8 +4,6 @@ public class UserForm extends LoginForm {
 	private String firstName;
 	private String middleName;
 	private String lastName;
-	private String newPassword;
-	private String newPasswordConfirmation;
 	
 	public UserForm() {
 	}
@@ -28,16 +26,4 @@ public class UserForm extends LoginForm {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	public String getNewPassword() {
-		return newPassword;
-	}
-	public void setNewPassword(String newPassword) {
-		this.newPassword = newPassword;
-	}
-	public String getNewPasswordConfirmation() {
-		return newPasswordConfirmation;
-	}
-	public void setNewPasswordConfirmation(String newPasswordConfirmation) {
-		this.newPasswordConfirmation = newPasswordConfirmation;
-	}	
 }

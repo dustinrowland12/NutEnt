@@ -2,10 +2,12 @@ package entertainment.games.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,7 @@ import entertainment.games.entity.User;
 import entertainment.games.enums.AccountReturnCode;
 import entertainment.games.enums.MessageType;
 import entertainment.games.form.authentication.LoginForm;
+import entertainment.games.form.authentication.ResetPasswordForm;
 import entertainment.games.form.authentication.UserForm;
 import entertainment.games.service.AuthenticationService;
 
@@ -54,9 +57,15 @@ public class AuthenticationController {
 	public String login(
 			Model model,
 			HttpServletRequest request,
-			@ModelAttribute LoginForm loginForm)  {
+			@Valid @ModelAttribute LoginForm loginForm,
+			BindingResult result)  {
 		
 		HttpSession session = request.getSession();
+		
+		//validation
+		if (result.hasErrors()) {
+			return page_login;
+		}
 		
 		UserDto userDto = authService.authenticateUser(loginForm.getUsername(), loginForm.getPassword());
 		AccountReturnCode returnCode = userDto.getReturnCode();
@@ -104,6 +113,7 @@ public class AuthenticationController {
 			Model model,
 			HttpServletRequest request)  {
 		
+		model.addAttribute(new UserForm());
 		String returnPage = page_create_user;
 		return returnPage;
 	}
@@ -160,49 +170,56 @@ public class AuthenticationController {
 		
 		HttpSession session = request.getSession();
 		UserSessionDto userSessionData = (UserSessionDto) session.getAttribute(ContextConstants.USER_SESSION_DATA);
-		UserForm userForm = new UserForm();
+		ResetPasswordForm resetPasswordForm = new ResetPasswordForm();
 		
-		if (userSessionData != null && userSessionData.getLoggedInUser() != null) {
-			User loggedInUser = userSessionData.getLoggedInUser();
-			userForm.setUsername(loggedInUser.getUsername());
+		if (userSessionData == null || userSessionData.getLoggedInUser() == null) {
+			//user is not logged in, can't reset password
+			MessageUtils.addMessage(request, "You must login to update your password", MessageType.ALERT);
+			return "forward:/login";
 		}
 		
-		model.addAttribute(userForm);
-		String returnPage = page_reset_password;
-		return returnPage;
+		User loggedInUser = userSessionData.getLoggedInUser();
+		resetPasswordForm.setUsername(loggedInUser.getUsername());
+		
+		model.addAttribute(resetPasswordForm);
+		return page_reset_password;
 	}
 	
 	@PostMapping(value = "/resetPassword")
 	public String resetPassword(
 			Model model,
 			HttpServletRequest request,
-			@ModelAttribute UserForm userForm)  {
+			@Valid @ModelAttribute ResetPasswordForm resetPasswordForm,
+			BindingResult result)  {
 		
 		String returnPage = page_reset_password;
-		model.addAttribute(userForm);
-		
-		if (!userForm.getNewPassword().equals(userForm.getNewPasswordConfirmation())) {
-			MessageUtils.addMessage(request, "New Password does not match new password confirmation field", MessageType.ALERT);
-			return returnPage;
-		}
+		model.addAttribute(resetPasswordForm);
 		
 		AccountReturnCode returnCode;
 		HttpSession session = request.getSession();
 				
 		UserSessionDto userSessionData = (UserSessionDto) session.getAttribute(ContextConstants.USER_SESSION_DATA);
 
+		//make sure user can be here
 		if (userSessionData == null || userSessionData.getLoggedInUser() == null) {
 			MessageUtils.addMessage(request, "You must login to update your password", MessageType.ALERT);
+			return "forward:/login";
+		}
+		
+		//validation
+		if (result.hasErrors()) {
+			return returnPage;
 		}
 		
 		User loggedInUser = userSessionData.getLoggedInUser();
+		String userName = loggedInUser.getUsername();
 
-		UserDto userDto = authService.updatePassword(loggedInUser.getUsername(), userForm.getPassword(), userForm.getNewPassword());
+		UserDto userDto = authService.updatePassword(loggedInUser.getUsername(), resetPasswordForm.getCurrentPassword(), resetPasswordForm.getNewPassword());
 		returnCode = userDto.getReturnCode();
 		
 		switch(returnCode) {
 			case INVALID_USER:
-				MessageUtils.addMessage(request, "An account with username '" + userForm.getUsername() + "' does not exist", MessageType.ALERT);
+				MessageUtils.addMessage(request, "An account with username '" + userName + "' does not exist", MessageType.ALERT);
 				break;
 			case INCORRECT_PASSWORD:
 				MessageUtils.addMessage(request, "The password you entered is incorrect", MessageType.ALERT);
@@ -219,7 +236,7 @@ public class AuthenticationController {
 				break;
 		}
 		
-		model.addAttribute(userForm);
+		model.addAttribute(resetPasswordForm);
 		
 		return returnPage;
 	}

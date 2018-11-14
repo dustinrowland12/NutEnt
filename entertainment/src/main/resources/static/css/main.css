@@ -18,9 +18,9 @@ body {
 }
 
 #page {
-	background-color: #fff;
 	width: 1440px;
 	flex: 1 0 auto;
+	color: rgba(255,255,255,.9);
 }
 
 @media screen and (max-width: 1440px) {
@@ -34,7 +34,9 @@ body {
 	grid-area: page-header;
 	display: flex;
 	align-items: center;
-	padding: 0.5rem 1rem;
+	padding-top: 1rem;
+	padding-left: 1rem;
+	color: #fff;
 }
 
 .page-header img.logo-nutmeg {
@@ -44,6 +46,7 @@ body {
 
 .main-menu {
 	grid-area: main-menu;
+	border-bottom: 1px rgba(255,255,255,.3) solid;
 }
 
 .content {
@@ -158,4 +161,18 @@ body {
 
 @media screen and (max-width: 400px) {
 
+}
+
+/* Updates to Bootstrap Modal styles */
+.modal-content {
+	background-color: #222;
+	box-shadow: 0px 0px 2em #000;
+}
+
+.close, .btn-dark {
+	color: rgba(255,255,255,.9);
+}
+
+.close:not(:disabled):not(.disabled):focus, .close:not(:disabled):not(.disabled):hover {
+	color: rgba(255,255,255,.5);
 }
