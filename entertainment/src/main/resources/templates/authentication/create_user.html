@@ -1,4 +1,11 @@
-<section xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}" layout:fragment="content">
+<html xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+  layout:decorate="~{layout}">
+  
+<head>
+	<title>Create User</title>
+</head>
+<body layout:fragment="content">
 	<form id="createUserForm" method="post" th:action="@{/createUser}">
 		<fieldset>
 			<legend>Create User</legend>
@@ -25,4 +32,5 @@
 			<input type="submit" class="btn btn-primary" value="Submit"/>
 		</fieldset>
 	</form>
-</section>
+</body>
+</html>

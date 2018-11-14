@@ -52,6 +52,7 @@ body {
 .content {
 	grid-area: content;
 	margin-top: 20px;
+	margin-bottom: 60px;
 }
 
 .footer {

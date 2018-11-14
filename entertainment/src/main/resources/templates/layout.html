@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:th="http://www.thymeleaf.org"   
+<html xmlns:th="http://www.thymeleaf.org"   
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
   
 <head>
@@ -17,7 +16,7 @@
 	<script type="text/javascript" th:src="@{/js/vue/vuelidate.min.js}"></script>
 	<script type="text/javascript" th:src="@{/js/bootstrap/bootstrap.bundle.min.js}"></script>
 	<script type="text/javascript" th:src="@{/js/main.js}"></script>
-    <title>Nutmeg Entertainment</title>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">NutEnt</title>
 </head>
 <body class="bg-dark">
 	<div id="page">
@@ -78,14 +77,15 @@
 						</div>
 					</th:block>
 				</div>
-				<div id="formErrors" th-if="${FORM_ERRORS != null}">
-					<div class="alert alert-danger" role="alert" th:each="message : ${FORM_ERRORS}">
-						[[${message}]]
-					</div>
-				</th:block>
 				<div layout:fragment="content"></div>
 			</div>
-			<div class="footer"></div>
+			<footer class="footer">
+				<nav class="navbar fixed-bottom navbar-dark bg-dark justify-content-center">
+					<span class="navbar-text">
+						&copy; 2018 NutEnt Inc.
+					</span>
+			    </nav>
+			</footer>
 		</div>
 	</div>
 </body>
