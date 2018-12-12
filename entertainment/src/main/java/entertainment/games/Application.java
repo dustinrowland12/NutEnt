@@ -27,12 +27,11 @@ public class Application {
         String password = dbUri.getUserInfo().split(":")[1];
         String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath() + "?sslmode=require";
 
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-        dataSourceBuilder.url(dbUrl);
-        dataSourceBuilder.username(username);
-        dataSourceBuilder.password(password);
-
-        return dataSourceBuilder.build();
+        return DataSourceBuilder.create()
+        		.url(dbUrl)
+        		.username(username)
+        		.password(password)
+        		.build();
     }
 	
 }
