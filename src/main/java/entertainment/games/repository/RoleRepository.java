@@ -4,12 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import entertainment.games.entity.User;
+import entertainment.games.entity.Role;
 
 @Repository
 @Transactional(readOnly = true)
-public interface UserRepository extends JpaRepository<User, Integer>, UserRepositoryCustom {
+public interface RoleRepository extends JpaRepository<Role, Integer> {
 	
-	User findByUsername(String username);
+	Role findByRole(String role);
 	
 }

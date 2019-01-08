@@ -1,13 +1,18 @@
 package entertainment.games.entity;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -33,6 +38,9 @@ public class User {
 	@ManyToOne
 	@JoinColumn(name = "account_locked_reason_code")
 	private LuAccountLockedReasonCode accountLockedReasonCode;
+	@ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name="USER_ROLE", joinColumns = { @JoinColumn(name = "USER_ID",nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "ROLE_ID", nullable = false) })
+    private Set<Role> roles = new HashSet<>();
 	
 	public User() {
 		super();
@@ -111,6 +119,11 @@ public class User {
 	public void setAccountLockedReasonCode(LuAccountLockedReasonCode accountLockedReasonCode) {
 		this.accountLockedReasonCode = accountLockedReasonCode;
 	}
-	
+	public Set<Role> getRoles() {
+		return roles;
+	}
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
 	
 }

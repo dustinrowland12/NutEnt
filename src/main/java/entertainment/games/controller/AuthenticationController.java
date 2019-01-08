@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import entertainment.games.common.ContextConstants;
 import entertainment.games.common.MessageUtils;
@@ -39,7 +39,7 @@ public class AuthenticationController {
 	private String page_profile = "index";
 	private String page_reset_password = "authentication/reset_password";
 	
-	@GetMapping(value = "/login")
+	@RequestMapping(value = "/login")
 	public String login(
 			Model model,
 			HttpServletRequest request)  {
@@ -51,61 +51,6 @@ public class AuthenticationController {
 		model.addAttribute(loginForm);
 		
 		return page_login;
-	}
-	
-	@PostMapping(value = "/login")
-	public String login(
-			Model model,
-			HttpServletRequest request,
-			@Valid @ModelAttribute LoginForm loginForm,
-			BindingResult result)  {
-		
-		HttpSession session = request.getSession();
-		
-		//validation
-		if (result.hasErrors()) {
-			return page_login;
-		}
-		
-		UserDto userDto = authService.authenticateUser(loginForm.getUsername(), loginForm.getPassword());
-		AccountReturnCode returnCode = userDto.getReturnCode();
-		
-		switch(returnCode) {
-			case LOGIN_SUCCESSFUL:
-				UserSessionDto userSessionData = new UserSessionDto();
-				userSessionData.setUserDto(userDto);
-				userSessionData.setLoggedIn(true);
-				session.setAttribute(ContextConstants.USER_SESSION_DATA, userSessionData);
-				MessageUtils.addMessage(request, "Logged in successfully!", MessageType.CONFIRMATION);
-				return page_home;
-			case INCORRECT_PASSWORD:
-				MessageUtils.addMessage(request, "Password is Incorrect", MessageType.ALERT);
-				break;
-			case PASSWORD_EXPIRED:
-				MessageUtils.addMessage(request, "Password is Expired", MessageType.ALERT);
-				break;
-			case ACCOUNT_LOCKED:
-				MessageUtils.addMessage(request, "Account is Locked: " + userDto.getUser().getAccountLockedReasonCode().getReason(), MessageType.ALERT);
-				break;
-			case INVALID_USER:
-				MessageUtils.addMessage(request, "Username is Invalid", MessageType.ALERT);
-				break;
-			default:
-				MessageUtils.addMessage(request, "Unknown Error Occurred", MessageType.ALERT);
-				break;
-		}
-		
-		model.addAttribute(loginForm);
-		
-		return page_login;
-	}
-	
-	@RequestMapping(value="/logout")
-	public String logout(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		MessageUtils.addMessage(request, "Logged Out Successfully", MessageType.CONFIRMATION);
-		session.removeAttribute(ContextConstants.USER_SESSION_DATA);
-		return page_home;
 	}
 	
 	@GetMapping(value = "/createUser")

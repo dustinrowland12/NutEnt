@@ -3,24 +3,34 @@ package entertainment.games.service;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.mkammerer.argon2.*;
-import entertainment.games.common.AccountLockedReasonCode;
+import entertainment.games.dto.UserDetailsImpl;
 import entertainment.games.dto.UserDto;
-import entertainment.games.entity.LuAccountLockedReasonCode;
 import entertainment.games.entity.User;
 import entertainment.games.enums.AccountReturnCode;
-import entertainment.games.repository.LuAccountLockedReasonCodeRepository;
 import entertainment.games.repository.UserRepository;
 
 @Service
-public class AuthenticationService {
+public class AuthenticationService implements UserDetailsService {
 	@Autowired
 	protected UserRepository userRepository; 
 	@Autowired
-	protected LuAccountLockedReasonCodeRepository luAccountLockedReasonCodeRepository;
+	protected PasswordEncoder encoder;
+	
+	@Override
+    public UserDetails loadUserByUsername(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
+        }
+        return new UserDetailsImpl(user);
+    }
 	
 	@Transactional
 	public UserDto getUser(String username) {
@@ -30,6 +40,7 @@ public class AuthenticationService {
 		return userDto;
 	}
 	
+	/* Now handled with Spring Security
 	@Transactional
 	public UserDto authenticateUser(String username, String password) {
 		boolean successful = false;
@@ -42,7 +53,7 @@ public class AuthenticationService {
 		}
 		
 		User user = userDto.getUser();
-		successful = verifyPassword(user, password);
+		successful = encoder.matches(password, user.getPassword());
 		
 		//if password was wrong, update login attempts and potentially lock account
 		if (!successful) {
@@ -69,7 +80,7 @@ public class AuthenticationService {
 		userDto.setReturnCode(AccountReturnCode.LOGIN_SUCCESSFUL);
 		return userDto;
 	}
-	
+	*/
 	@Transactional
 	public UserDto createNewUser(User user) {
 		UserDto userDto = new UserDto();
@@ -81,7 +92,7 @@ public class AuthenticationService {
 		}
 		
 		try {
-			String hashedPassword = hashPassword(user.getPassword());
+			String hashedPassword = encoder.encode(user.getPassword());
 			user.setPassword(hashedPassword);
 			user.setCreateDate(new Date());
 			user.setUpdateDate(new Date());
@@ -115,18 +126,18 @@ public class AuthenticationService {
 			}
 			User user = userDto.getUser();
 			//verify user's original password
-			boolean verified = verifyPassword(user, originalPassword);
+			boolean verified = encoder.matches(originalPassword, user.getPassword());
 			if (verified == false) {
 				userDto.setReturnCode(AccountReturnCode.INCORRECT_PASSWORD);
 				return userDto;
 			}
-			String newHashedPassword = hashPassword(newPassword);
+			String newHashedPassword = encoder.encode(newPassword);
 			user.setPassword(newHashedPassword);
 			user.setPasswordUpdateDate(new Date());
 			user.setUpdateDate(new Date());
-			//reset number of login attempts
-			user = updateUnsuccessfulLoginAttempts(user, 0);
 			userRepository.save(user);
+			//reset number of login attempts
+			userRepository.resetUnsuccessfulLoginAttempts(username);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -138,6 +149,7 @@ public class AuthenticationService {
 		return userDto;
 	}
 	
+	/* Now done with Repository
 	@Transactional
 	private User updateUnsuccessfulLoginAttempts(User user, Integer attempts) {
 		//update login attempts
@@ -158,32 +170,5 @@ public class AuthenticationService {
 		}
 		return user;
 	}
-	
-	public static String hashPassword(String password) throws Exception {
-		String hashedPassword = null;
-		//byte[] salt = new byte[16];
-		//SecureRandom random = new SecureRandom();
-		
-		Argon2 argon2 = Argon2Factory.create();
-		
-		try {
-			//random.nextBytes(salt);
-			hashedPassword = argon2.hash(3, 65536, 1, password);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-		
-		return hashedPassword;
-	}
-	
-	protected boolean verifyPassword(User user, String password) {
-		boolean verified = false;
-		
-		Argon2 argon2 = Argon2Factory.create();
-		verified = argon2.verify(user.getPassword(), password);
-		
-		return verified;
-	}
+	*/
 }
