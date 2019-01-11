@@ -80,70 +80,45 @@
 			</div>
 		</transition>
 		<!-- Modal -->
-		<div class="modal fade" id="modalCompleteGame" tabindex="-1" role="dialog"
-			aria-labelledby="modalCompleteGameLabel" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="modalCompleteGameLabel">
-						<template v-if="showWin">
-							You Win!
-						</template>
-						<template v-if="showLose">
-							You LOSE!
-						</template>
-						</h5>
-						<button type="button" class="close" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<template v-if="showWin">
-							Congratulations! Would you like to play again?
-						</template>
-						<template v-if="showLose">
-							You LOSE! Would you like to play again?
-						</template>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">No Thanks</button>
-						<button type="button" class="btn btn-primary" @click="newGameFromModal">New Game</button>
-					</div>
-				</div>
-			</div>
+		<div id="modalCompleteGame" th:replace="modal :: modal(id='modalCompleteGame', header=~{:://modal-header}, body=~{::#modalCompleteGame//modal-body}, footer=~{::#modalCompleteGame//modal-footer})">
+			<modal-header>
+				<template v-if="showWin">
+					You Win!
+				</template>
+				<template v-if="showLose">
+					You LOSE!
+				</template>
+			</modal-header>
+			<modal-body>
+				<template v-if="showWin">
+					Congratulations! Would you like to play again?
+				</template>
+				<template v-if="showLose">
+					You LOSE! Would you like to play again?
+				</template>
+			</modal-body>
+			<modal-footer>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">No Thanks</button>
+				<button type="button" class="btn btn-primary" @click="newGameFromModal">New Game</button>
+			</modal-footer>
 		</div>
-		<div class="modal fade" id="modalInstructions" tabindex="-1" role="dialog"
-			aria-labelledby="modalInstructionsLabel" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="modalInstructionsLabel">
-							Instructions
-						</h5>
-						<button type="button" class="close" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<p>
-							The purpose of the game is to open all the cells of the board 
-							which do not contain a mine. You lose if you set off a mine cell. Every non-mine 
-							cell you open will tell you the total number of mines in the eight neighboring cells. 
-							Once you are sure that a cell contains a mine, you can right-click to put a flag it 
-							on it as a reminder. Once you have flagged all the mines around an open cell, you can 
-							quickly open the remaining non-mine cells by shift-clicking on the cell. 
-						</p>
-						<p>
-							To start a new game (abandoning the current one), click the New Game button. Happy mine hunting!
-						</p>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
+		<div id="modalInstructions" th:replace="modal :: modal(id='modalInstructions', title='Instructions', body=~{::#modalInstructions//modal-body}, footer=~{::#modalInstructions//modal-footer})">
+			<modal-body>
+				<p>
+					The purpose of the game is to open all the cells of the board 
+					which do not contain a mine. You lose if you set off a mine cell. Every non-mine 
+					cell you open will tell you the total number of mines in the eight neighboring cells. 
+					Once you are sure that a cell contains a mine, you can right-click to put a flag it 
+					on it as a reminder. Once you have flagged all the mines around an open cell, you can 
+					quickly open the remaining non-mine cells by shift-clicking on the cell. 
+				</p>
+				<p>
+					To start a new game (abandoning the current one), click the New Game button. Happy mine hunting!
+				</p>
+			</modal-body>
+			<modal-footer>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</modal-footer>
 		</div>
 	</div>
 	<!-- common functions -->

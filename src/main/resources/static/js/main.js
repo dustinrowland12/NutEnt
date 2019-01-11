@@ -7,3 +7,12 @@ var Counter = function() {
 		return ++self.count;
 	}
 }
+
+function modalAddError(id, error) {
+	var alerts = $("#" + id + " .modal-alerts");
+	var newAlert = $("<div class='alert alert-danger' role='alert'></div>").text(error);
+	alerts.append(newAlert);
+}
+function modalClearErrors(id) {
+	$("#" + id + " .modal-alerts").empty();
+}

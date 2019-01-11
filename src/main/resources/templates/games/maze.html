@@ -80,24 +80,14 @@
 			</div>
 		</transition>
 		<!-- Modal -->
-		<div class="modal fade" id="modalCompleteGame" tabindex="-1" role="dialog"
-			aria-labelledby="modalCompleteGameLabel" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="modalCompleteGameLabel">You Win!</h5>
-						<button type="button" class="close" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">Congratulations! Would you like to play again?</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">No Thanks</button>
-						<button type="button" class="btn btn-primary" @click="newGameFromModal">New Maze</button>
-					</div>
-				</div>
-			</div>
+		<div th:replace="modal :: modal(id='modalCompleteGame', title='You Win!', body=~{::modal-body}, footer=~{::modal-footer})">
+			<modal-body>
+				Congratulations! Would you like to play again?
+			</modal-body>
+			<modal-footer>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">No Thanks</button>
+				<button type="button" class="btn btn-primary" @click="newGameFromModal">New Maze</button>
+			</modal-footer>
 		</div>
 	</div>
 	<!-- common functions -->

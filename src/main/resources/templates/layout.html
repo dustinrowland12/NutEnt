@@ -5,6 +5,8 @@
   
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="_csrf" th:content="${_csrf.token}"/>
+  	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 	<!-- CSS -->
 	<link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap/bootstrap.min.css}">
 	<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
@@ -20,11 +22,11 @@
 	<script type="text/javascript" th:src="@{/js/main.js}"></script>
     <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">NutEnt</title>
 </head>
-<body class="bg-dark">
-	<div id="page">
+<body th:classappend="${isAdmin} ? 'bg-light' : 'bg-dark'">
+	<div id="page" th:class="${isAdmin} ? '' : 'light-text'">
 		<div class="main-grid-container">
-			<div class="main-menu">
-				<nav class="navbar navbar-expand-lg navbar-dark bg-dark bd-navbar">
+			<div class="main-menu" th:classappend="${isAdmin} ? 'dark-border' : 'light-border'">
+				<nav class="navbar navbar-expand-lg bd-navbar" th:classappend="${isAdmin} ? 'navbar-light bg-light' : 'navbar-dark bg-dark'">
 					<button class="navbar-toggler" type="button" data-toggle="collapse"
 						data-target="#navbarSupportedContent"
 						aria-controls="navbarSupportedContent" aria-expanded="false"
@@ -81,10 +83,23 @@
 						</div>
 					</th:block>
 				</div>
-				<div layout:fragment="content"></div>
+				
+				<div th:if="${isAdmin}" class="row">
+					<div class="list-group col-2">
+						<a th:href="@{/admin/users}" class="list-group-item list-group-item-action list-group-item-dark">Users</a>
+						<a th:href="@{/admin/roles}" class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${tab_active_role ? 'active' : ''}">Roles</a>
+						<a th:href="@{/admin/games}" class="list-group-item list-group-item-action list-group-item-dark">Games</a>
+					</div>
+					<div class="list-group col-10">
+						<div layout:fragment="content"></div>
+					</div>
+				</div>
+				<th:block th:unless="${isAdmin}">
+					<div layout:fragment="content"></div>
+				<th:block>
 			</div>
 			<footer class="footer">
-				<nav class="navbar fixed-bottom navbar-dark bg-dark justify-content-center">
+				<nav class="navbar fixed-bottom justify-content-center" th:classappend="${isAdmin} ? 'navbar-light bg-light' : 'navbar-dark bg-dark'">
 					<span class="navbar-text">
 						&copy; 2018 NutEnt Inc.
 					</span>

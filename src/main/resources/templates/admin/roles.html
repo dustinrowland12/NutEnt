@@ -1,0 +1,106 @@
+<html xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+  layout:decorate="~{layout}" th:with="isAdmin=true">
+  
+<head>
+	<link rel="stylesheet" type="text/css" th:href="@{/js/datatables/datatables.min.css}">
+	<script type="text/javascript" th:src="@{/js/datatables/datatables.min.js}"></script>
+	<title>Roles</title>
+</head>
+<body layout:fragment="content">
+	<form id="roleForm" method="post" th:action="@{/roles}">
+		<fieldset>
+			<legend>Roles</legend>
+			<table id="roles-table" class="table table-striped table-bordered">
+				<thead>
+		            <tr>
+		                <th>Role ID</th>
+		                <th>Role Name</th>
+		            </tr>
+		        </thead>
+			</table>
+		</fieldset>
+	</form>
+	<script type="text/javascript" th:inline="javascript">
+		var getRolesUrl = /*[[@{/admin/ajax/get/roles}]]*/ "/admin/ajax/get/roles";
+	
+		var dataTable = $("#roles-table").DataTable({
+			"ajax": {
+				"url": getRolesUrl,
+				"dataSrc": ""
+			},
+			"columns": [
+	            { "data": "roleId" },
+	            { "data": "role" }
+	        ],
+	        dom: "<'row'<'col-sm-12 d-flex justify-content-center'B>>" +
+	        "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+	        "<'row'<'col-sm-12'tr>>" +
+	        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+	        buttons: [
+	            {
+	                text: 'Add Role',
+	                action: function ( e, dt, node, config ) {
+	                	$('#modalAddRole').modal('show');
+	                }
+	            }
+	        ]
+		});
+	
+		function addRole() {
+			var roleName = $("#addRoleName").val();
+			var token = $("meta[name='_csrf']").attr("content");
+		    var header = $("meta[name='_csrf_header']").attr("content");
+		    
+			$.ajax({
+			    method: "POST",
+			    url: [[@{/admin/ajax/add/role}]],
+			    data: {
+					role: roleName
+			    },
+			    beforeSend: function(xhr) {
+			        xhr.setRequestHeader(header, token);
+				},
+				error: function(data) {
+					modalAddError("modalAddRole", "There was an error...");
+				},
+			    success: function(data) {
+					dataTable.ajax.reload();
+					modalClearErrors("modalAddRole");
+					$('#modalAddRole').modal('hide');
+				},
+				complete: function(data) {
+				}
+			});
+		}
+
+		$(document).ready(function() {
+			$("#saveRole").click(function(e) {
+				addRole();
+			});
+
+			$('#saveRole').keypress(function (e) {
+				var key = e.which;
+				if(key == 13)  // the enter key code
+			 	{
+				    $("#saveRole").click();
+				}
+			});   
+		});
+		
+	</script>
+	
+	<div th:replace="modal :: modal(id='modalAddRole', title='Add Role', light=true, body=~{::modal-body}, footer=~{::modal-footer})">
+		<modal-body>
+			<div class="form-group">
+				<label for="roleName">Role Name</label>
+				<input type="text" class="form-control" name="roleName" id="addRoleName">
+			</div>
+		</modal-body>
+		<modal-footer>
+			<button type="button" class="btn btn-primary" id="saveRole">Save</button>
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+		</modal-footer>
+	</div>
+</body>
+</html>

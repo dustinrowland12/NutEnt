@@ -31,13 +31,13 @@ public class AuthenticationController {
 	@Autowired
 	protected AuthenticationService authService;
 	
-	//jsp pages
-	private String page_home = "index";
-	private String page_create_user = "authentication/create_user";
-	private String page_login = "authentication/login";
-	//private String page_profile = "authentication/profile";
-	private String page_profile = "index";
-	private String page_reset_password = "authentication/reset_password";
+	//pages
+	private static final String PAGE_HOME = "index";
+	private static final String PAGE_CREATE_USER = "authentication/create_user";
+	private static final String PAGE_LOGIN = "authentication/login";
+	//private String PAGE_PROFILE = "authentication/profile";
+	private static final String PAGE_PROFILE = "index";
+	private static final String PAGE_RESET_PASSWORD = "authentication/reset_password";
 	
 	@RequestMapping(value = "/login")
 	public String login(
@@ -50,7 +50,7 @@ public class AuthenticationController {
 		
 		model.addAttribute(loginForm);
 		
-		return page_login;
+		return PAGE_LOGIN;
 	}
 	
 	@GetMapping(value = "/createUser")
@@ -59,7 +59,7 @@ public class AuthenticationController {
 			HttpServletRequest request)  {
 		
 		model.addAttribute(new UserForm());
-		String returnPage = page_create_user;
+		String returnPage = PAGE_CREATE_USER;
 		return returnPage;
 	}
 	
@@ -69,7 +69,7 @@ public class AuthenticationController {
 			HttpServletRequest request,
 			@ModelAttribute UserForm userForm)  {
 		
-		String returnPage = page_create_user;
+		String returnPage = PAGE_CREATE_USER;
 		AccountReturnCode returnCode;
 		HttpSession session = request.getSession();
 		
@@ -97,7 +97,7 @@ public class AuthenticationController {
 				userSessionData.setLoggedIn(true);
 				session.setAttribute(ContextConstants.USER_SESSION_DATA, userSessionData);
 				MessageUtils.addMessage(request, "Account created successfully!", MessageType.CONFIRMATION);
-				returnPage = page_home;
+				returnPage = PAGE_HOME;
 				break;
 			default:
 				break;
@@ -127,7 +127,7 @@ public class AuthenticationController {
 		resetPasswordForm.setUsername(loggedInUser.getUsername());
 		
 		model.addAttribute(resetPasswordForm);
-		return page_reset_password;
+		return PAGE_RESET_PASSWORD;
 	}
 	
 	@PostMapping(value = "/resetPassword")
@@ -137,7 +137,7 @@ public class AuthenticationController {
 			@Valid @ModelAttribute ResetPasswordForm resetPasswordForm,
 			BindingResult result)  {
 		
-		String returnPage = page_reset_password;
+		String returnPage = PAGE_RESET_PASSWORD;
 		model.addAttribute(resetPasswordForm);
 		
 		AccountReturnCode returnCode;
@@ -175,7 +175,7 @@ public class AuthenticationController {
 				userSessionData.setLoggedIn(true);
 				session.setAttribute(ContextConstants.USER_SESSION_DATA, userSessionData);
 				MessageUtils.addMessage(request, "Password updated successfully!", MessageType.CONFIRMATION);
-				returnPage = page_profile;
+				returnPage = PAGE_PROFILE;
 				break;
 			default:
 				break;

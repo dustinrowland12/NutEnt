@@ -20,6 +20,9 @@ body {
 #page {
 	width: 1440px;
 	flex: 1 0 auto;
+}
+
+#page.light-text {
 	color: rgba(255,255,255,.9);
 }
 
@@ -46,7 +49,14 @@ body {
 
 .main-menu {
 	grid-area: main-menu;
+}
+
+.main-menu.light-border {
 	border-bottom: 1px rgba(255,255,255,.3) solid;
+}
+
+.main-menu.dark-border {
+	border-bottom: 1px rgba(0,0,0,.3) solid;
 }
 
 .content {
@@ -165,15 +175,17 @@ body {
 }
 
 /* Updates to Bootstrap Modal styles */
-.modal-content {
+.modal-content.dark {
 	background-color: #222;
 	box-shadow: 0px 0px 2em #000;
 }
 
-.close, .btn-dark {
+.modal-content.dark .close, 
+.modal-content.dark .btn-dark {
 	color: rgba(255,255,255,.9);
 }
 
-.close:not(:disabled):not(.disabled):focus, .close:not(:disabled):not(.disabled):hover {
+.modal-content.dark .close:not(:disabled):not(.disabled):focus, 
+.modal-content.dark .close:not(:disabled):not(.disabled):hover {
 	color: rgba(255,255,255,.5);
 }

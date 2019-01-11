@@ -13,28 +13,39 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Role {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "roles_gen")
-	@SequenceGenerator(name = "roles_gen", sequenceName = "roles_seq", allocationSize = 1)
+	@SequenceGenerator(name = "roles_gen", sequenceName = "role_seq", allocationSize = 1)
 	private Integer roleId;
  
     private String role;
- 
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="USER_ROLE", joinColumns = { @JoinColumn(name = "ROLE_ID",nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "USER_ID", nullable = false) })
     private Set<User> users = new HashSet<>();
  
+    public Integer getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(Integer roleId) {
+		this.roleId = roleId;
+	}
+    
     public String getRole() {
         return role;
     }
- 
-    public void setRole(String role) {
+    
+	public void setRole(String role) {
         this.role = role;
     }
- 
+
+	@JsonIgnore
     public Set<User> getUsers() {
         return users;
     }
