@@ -3,15 +3,22 @@ package entertainment.games.controller;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.server.ResponseStatusException;
 
 import entertainment.games.entity.Role;
 import entertainment.games.form.admin.RoleForm;
@@ -60,12 +67,42 @@ public class AdminController {
 	public Role addRole(
 			Model model,
 			HttpServletRequest request,
-			@ModelAttribute RoleForm form) {
+			@Valid @RequestBody RoleForm form) {
 		
-		Role newRole = new Role();
-		newRole.setRole(form.getRole());
-		newRole = adminService.addRole(newRole);
-		return newRole;
+		Role role = new Role();
+		role.setRole(form.getRoleName());
+		try {
+			adminService.saveRole(role);
+		}
+		catch (DataIntegrityViolationException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRole() + " already exists.", e);
+		}
+		catch (DataAccessException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRole() + " could not be added.", e);
+		}
+		return role;
+	}
+	
+	@ResponseBody
+	@PostMapping("/ajax/edit/role") 
+	public Role editRole(
+			Model model,
+			HttpServletRequest request,
+			@Valid @RequestBody RoleForm form) {
+		
+		Role role = new Role();
+		role.setRoleId(form.getRoleId());
+		role.setRole(form.getRoleName());
+		try {
+			role = adminService.saveRole(role);
+		}
+		catch (DataRetrievalFailureException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRoleId() + " does not exist or could not be found.", e);
+		}
+		catch (DataAccessException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRoleId() + " could not be updated.", e);
+		}
+		return role;
 	}
 	
 	@ResponseBody
@@ -73,11 +110,18 @@ public class AdminController {
 	public void deleteRole(
 			Model model,
 			HttpServletRequest request,
-			@ModelAttribute RoleForm form) {
+			@RequestBody RoleForm form) {
 		
 		Role role = new Role();
-		role.setRoleId(form.getRole_id());
-		role.setRole(form.getRole());
-		adminService.deleteRole(role);
+		role.setRoleId(form.getRoleId());
+		try {
+			adminService.deleteRole(role);
+		}
+		catch (DataRetrievalFailureException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRoleId() + " does not exist or could not be found.", e);
+		}
+		catch (DataAccessException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRoleId() + " could not be deleted.", e);
+		}
 	}
 }

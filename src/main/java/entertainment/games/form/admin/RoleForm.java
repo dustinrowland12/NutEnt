@@ -1,23 +1,27 @@
 package entertainment.games.form.admin;
 
+import javax.validation.constraints.NotBlank;
+
 public class RoleForm {
-	private int role_id;
-	private String role;
+	private int roleId;
+	
+	@NotBlank(message="Role Name must not be blank.")
+	private String roleName;
 
-	public int getRole_id() {
-		return role_id;
+	public int getRoleId() {
+		return roleId;
 	}
 
-	public void setRole_id(int role_id) {
-		this.role_id = role_id;
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
 	}
 
-	public String getRole() {
-		return role;
+	public String getRoleName() {
+		return roleName;
 	}
 
-	public void setRole(String role) {
-		this.role = role;
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
 	}
 
 }

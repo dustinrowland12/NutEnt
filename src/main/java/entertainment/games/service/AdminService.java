@@ -24,7 +24,7 @@ public class AdminService {
 	}
 	
 	@Transactional
-	public Role addRole(Role role) {
+	public Role saveRole(Role role) {
 		Role newRole = null;
 		newRole = roleRepository.save(role);
 		return newRole;
