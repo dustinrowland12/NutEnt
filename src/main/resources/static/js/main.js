@@ -34,6 +34,19 @@ function clearAlertsModal(id) {
 	$("#" + id + " .modal-alerts").empty();
 }
 
+function handleAjaxErrors(data) {
+	if (data.responseJSON.errors != null) {
+		//validation errors
+		data.responseJSON.errors.forEach(function(error) {
+			addAlert(AlertType.ALERT, error.defaultMessage);
+		})
+	}
+	else {
+		//custom errors
+		addAlert(AlertType.ALERT, data.responseJSON.message);
+	}
+}
+
 function handleAjaxErrorsModal(id, data) {
 	if (data.responseJSON.errors != null) {
 		//validation errors

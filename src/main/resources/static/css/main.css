@@ -189,3 +189,7 @@ body {
 .modal-content.dark .close:not(:disabled):not(.disabled):hover {
 	color: rgba(255,255,255,.5);
 }
+
+.dropdown-toggle.no-icon::after {
+  display: none;
+}

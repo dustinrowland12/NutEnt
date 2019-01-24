@@ -45,7 +45,9 @@
 									<a class="dropdown-item" th:href="@{/games/maze}">Maze</a>
 									<a class="dropdown-item" th:href="@{/games/minesweeper}">Minesweeper</a> 
 									<a class="dropdown-item disabled" href="#">Sudoku</a>
-								</div></li>
+								</div>
+							</li>
+							<li class="nav-item" sec:authorize="hasRole('admin')"><a class="nav-link" th:href="@{/admin/}">Admin</a></li>
 						</ul>
 						<ul class="navbar-nav" id="loggedInUser">
 							<li class="nav-item dropdown" sec:authorize="isAuthenticated()">
@@ -72,9 +74,9 @@
 			<div class="content">
 				<div th:if="${isAdmin}" class="row">
 					<div class="list-group col-2">
-						<a th:href="@{/admin/users}" class="list-group-item list-group-item-action list-group-item-dark">Users</a>
-						<a th:href="@{/admin/roles}" class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${tab_active_role ? 'active' : ''}">Roles</a>
-						<a th:href="@{/admin/games}" class="list-group-item list-group-item-action list-group-item-dark">Games</a>
+						<a th:href="@{/admin/users}" class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${tab_active == 'users' ? 'active' : ''}">Users</a>
+						<a th:href="@{/admin/roles}" class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${tab_active == 'roles' ? 'active' : ''}">Roles</a>
+						<a th:href="@{/admin/games}" class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${tab_active == 'games' ? 'active' : ''}">Games</a>
 					</div>
 					<div class="list-group col-10">
 						<div id="systemMessages">

@@ -10,8 +10,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+import entertainment.games.config.AuditorAwareImpl;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class Application {
 	
 	public static void main(String[] args) {
@@ -33,5 +38,10 @@ public class Application {
         		.password(password)
         		.build();
     }
+	
+	@Bean
+	public AuditorAware<String> auditorProvider() {
+	    return new AuditorAwareImpl();
+	}
 	
 }

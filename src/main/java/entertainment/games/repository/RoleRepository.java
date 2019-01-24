@@ -1,5 +1,7 @@
 package entertainment.games.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,5 +13,7 @@ import entertainment.games.entity.Role;
 public interface RoleRepository extends JpaRepository<Role, Integer> {
 	
 	Role findByRole(String role);
+	
+	List<Role> findAllByOrderByRoleIdAsc();	
 	
 }

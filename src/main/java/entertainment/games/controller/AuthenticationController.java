@@ -5,6 +5,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -70,8 +71,6 @@ public class AuthenticationController {
 			@ModelAttribute UserForm userForm)  {
 		
 		String returnPage = PAGE_CREATE_USER;
-		AccountReturnCode returnCode;
-		HttpSession session = request.getSession();
 		
 		User user =  new User();
 		user.setUsername(userForm.getUsername());
@@ -80,30 +79,21 @@ public class AuthenticationController {
 		user.getName().setMiddleName(userForm.getMiddleName());
 		user.getName().setLastName(userForm.getLastName());
 		
-		UserDto userDto = authService.createNewUser(user);
-		returnCode = userDto.getReturnCode();
-		
-		switch(returnCode) {
-			case ACCOUNT_ALREADY_EXISTS:
-				MessageUtils.addMessage(request, "An account with username '" + userForm.getUsername() + "' already exists", MessageType.ALERT);
-				break;
-			case ACCOUNT_CREATION_ERROR:
-				MessageUtils.addMessage(request, "Error creating account; please try again", MessageType.ALERT);
-				break;
-			case ACCOUNT_CREATED:
-				UserSessionDto userSessionData = new UserSessionDto();
-				userDto = authService.getUser(userForm.getUsername());
-				userSessionData.setUserDto(userDto);
-				userSessionData.setLoggedIn(true);
-				session.setAttribute(ContextConstants.USER_SESSION_DATA, userSessionData);
-				MessageUtils.addMessage(request, "Account created successfully!", MessageType.CONFIRMATION);
-				returnPage = PAGE_HOME;
-				break;
-			default:
-				break;
+		try {
+			user = authService.createNewUser(user);
+			MessageUtils.addMessage(request, "Account created successfully!", MessageType.CONFIRMATION);
+			returnPage = PAGE_HOME;
+		}
+		catch(DataIntegrityViolationException e) {
+			MessageUtils.addMessage(request, e.getMessage(), MessageType.ALERT);
+		}
+		catch (Exception e) {
+			MessageUtils.addMessage(request, "Error creating account; please try again", MessageType.ALERT);
 		}
 		
-		model.addAttribute(userForm);
+		if (returnPage.equals(PAGE_CREATE_USER)) {
+			model.addAttribute(userForm);
+		}
 		
 		return returnPage;
 	}

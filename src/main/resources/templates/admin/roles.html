@@ -8,20 +8,18 @@
 	<title>Roles</title>
 </head>
 <body layout:fragment="content">
-	<form id="roleForm" method="post" th:action="@{/roles}">
-		<fieldset>
-			<legend>Roles</legend>
-			<table id="roles-table" class="table table-striped hover">
-				<thead>
-		            <tr>
-		                <th>Role ID</th>
-		                <th>Role Name</th>
-		                <th>&nbsp;</th>
-		            </tr>
-		        </thead>
-			</table>
-		</fieldset>
-	</form>
+	<fieldset>
+		<legend>Roles</legend>
+		<table id="roles-table" class="table table-striped hover">
+			<thead>
+	            <tr>
+	                <th>Role ID</th>
+	                <th>Role Name</th>
+	                <th>&nbsp;</th>
+	            </tr>
+	        </thead>
+		</table>
+	</fieldset>
 	<script type="text/javascript" th:inline="javascript">
 		var getRolesUrl = /*[[@{/admin/ajax/get/roles}]]*/ "/admin/ajax/get/roles";
 	
@@ -39,7 +37,7 @@
 		            "render": function ( data, type, row, meta ) {
 				    	return `
 					    	<div class="dropdown">
-					    	  <button class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenuRole` + data.roleId + `" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+					    	  <button class="btn btn-sm dropdown-toggle no-icon" type="button" id="dropdownMenuRole` + data.roleId + `" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></button>
 					    	  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 					    	  	<button type="button" class="dropdown-item btn" onclick="editRolePrompt(` + data.roleId + `, '` + data.role + `')">Edit</button>
 					    	    <button type="button" class="dropdown-item btn" onclick="deleteRolePrompt(` + data.roleId + `, '` + data.role + `')">Delete</button>
@@ -50,7 +48,6 @@
 			    	"className": "text-right"
 			    }
 	        ],
-	        
 	        dom: "<'row'<'col-sm-12 d-flex justify-content-center'B>>" +
 	        "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
 	        "<'row'<'col-sm-12'tr>>" +

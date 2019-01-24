@@ -17,20 +17,24 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import entertainment.games.dto.Auditable;
+
 @Entity
 @Table(name="USERS")
-public class User {
+public class User extends Auditable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_gen")
 	@SequenceGenerator(name = "users_gen", sequenceName = "users_seq", allocationSize = 1)
 	private Integer userId;
 	private String username;
+	@JsonIgnore
 	private String password;
+	@JsonIgnore
 	private String salt;
 	@Embedded
 	private Name name;
-	private Date createDate;
-	private Date updateDate;
 	private Date lastLoginDate;
 	private Date passwordUpdateDate;
 	private Integer unsuccessfulLoginAttempts;
@@ -76,18 +80,6 @@ public class User {
 	}
 	public void setName(Name name) {
 		this.name = name;
-	}
-	public Date getCreateDate() {
-		return createDate;
-	}
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-	public Date getUpdateDate() {
-		return updateDate;
-	}
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
 	}
 	public Date getLastLoginDate() {
 		return lastLoginDate;

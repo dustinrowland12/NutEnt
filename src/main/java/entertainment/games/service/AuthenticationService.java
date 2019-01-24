@@ -1,8 +1,10 @@
 package entertainment.games.service;
 
 import java.util.Date;
+import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,14 +14,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import entertainment.games.dto.UserDetailsImpl;
 import entertainment.games.dto.UserDto;
+import entertainment.games.entity.Role;
 import entertainment.games.entity.User;
 import entertainment.games.enums.AccountReturnCode;
+import entertainment.games.repository.RoleRepository;
 import entertainment.games.repository.UserRepository;
 
 @Service
 public class AuthenticationService implements UserDetailsService {
 	@Autowired
 	protected UserRepository userRepository; 
+	@Autowired
+	protected RoleRepository roleRepository; 
 	@Autowired
 	protected PasswordEncoder encoder;
 	
@@ -82,34 +88,30 @@ public class AuthenticationService implements UserDetailsService {
 	}
 	*/
 	@Transactional
-	public UserDto createNewUser(User user) {
-		UserDto userDto = new UserDto();
-		UserDto existingUserDto = getUser(user.getUsername());
+	public User createNewUser(User user) {
+		User existingUser = userRepository.findByUsername(user.getUsername());
 		
-		if (existingUserDto != null && existingUserDto.getUser() != null) {
-			userDto.setReturnCode(AccountReturnCode.ACCOUNT_ALREADY_EXISTS);
-			return userDto;
+		if (existingUser != null) {
+			throw new DataIntegrityViolationException("User " + user.getUsername() + " already exists.");
 		}
 		
-		try {
-			String hashedPassword = encoder.encode(user.getPassword());
-			user.setPassword(hashedPassword);
-			user.setCreateDate(new Date());
-			user.setUpdateDate(new Date());
-			user.setPasswordUpdateDate(new Date());
-			user.setAccountLocked(false);
-			user.setUnsuccessfulLoginAttempts(0);
-			userRepository.save(user);	
-			
-			userDto.setUser(user);
-			userDto.setReturnCode(AccountReturnCode.ACCOUNT_CREATED);
-			return userDto;
+		String hashedPassword = encoder.encode(user.getPassword());
+		user.setPassword(hashedPassword);
+		user.setPasswordUpdateDate(new Date());
+		user.setAccountLocked(false);
+		user.setUnsuccessfulLoginAttempts(0);
+		userRepository.save(user);	
+		
+		//add default role(s)
+		if (user.getRoles() == null) {
+			user.setRoles(new HashSet<>());
 		}
-		catch(Exception e) {
-			e.printStackTrace();
-			userDto.setReturnCode(AccountReturnCode.ACCOUNT_CREATION_ERROR);
-			return userDto;
-		}
+		
+		//add games role
+		Role role = roleRepository.findByRole("games");
+		user.getRoles().add(role);
+		
+		return user;
 		
 	}
 	
@@ -134,7 +136,6 @@ public class AuthenticationService implements UserDetailsService {
 			String newHashedPassword = encoder.encode(newPassword);
 			user.setPassword(newHashedPassword);
 			user.setPasswordUpdateDate(new Date());
-			user.setUpdateDate(new Date());
 			userRepository.save(user);
 			//reset number of login attempts
 			userRepository.resetUnsuccessfulLoginAttempts(username);

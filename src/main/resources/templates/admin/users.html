@@ -1,0 +1,329 @@
+<html xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+  layout:decorate="~{layout}" th:with="isAdmin=true">
+  
+<head>
+	<link rel="stylesheet" type="text/css" th:href="@{/js/datatables/datatables.min.css}">
+	<script type="text/javascript" th:src="@{/js/datatables/datatables.min.js}"></script>
+	<title>Users</title>
+</head>
+<body layout:fragment="content">
+	<fieldset id="userList">
+		<legend>Users</legend>
+		<table id="users-table" class="table table-striped hover">
+			<thead>
+	            <tr>
+	                <th>User ID</th>
+	                <th>Username</th>
+	                <th>First Name</th>
+	                <th>Middle Name</th>
+	                <th>Last Name</th>
+	                <th>Account Locked</th>
+	                <th>&nbsp;</th>
+	            </tr>
+	        </thead>
+		</table>
+	</fieldset>	
+	<div id="userPage">
+		<template v-if="showUserDetails">
+			<fieldset>
+				<legend>{{userDetailsTitle}}</legend>
+				<div class="form-group" v-if="!newUser">
+					<label for="userId">User ID</label>
+					<input type="text" class="form-control" name="userId" id="userId" :value="user.userId" readonly>
+				</div>
+				<div class="form-group">
+					<label for="username">Username</label>
+					<input type="text" class="form-control" name="username" id="username" v-model="user.username">
+				</div>
+				<div class="form-group" v-if="newUser">
+					<label for="password">Password</label>
+					<input type="password" class="form-control" name="password" id="password" v-model="user.password">
+				</div>
+				<div class="form-group">
+					<label for="firstName">First Name</label>
+					<input type="text" class="form-control" name="firstName" id="firstName" v-model="user.firstName">
+				</div>
+				<div class="form-group">
+					<label for="middleName">Middle Name</label>
+					<input type="text" class="form-control" name="middleName" id="middleName" v-model="user.middleName">
+				</div>
+				<div class="form-group">
+					<label for="lastName">Last Name</label>
+					<input type="text" class="form-control" name="lastName" id="lastName" v-model="user.lastName">
+				</div>
+				<div>
+					<button type="button" class="btn btn-primary" id="updateUserButton" @click="editUser" v-if="newUser == false">Update</button>
+					<button type="button" class="btn btn-primary" id="addUserButton" @click="addUser" v-if="newUser == true">Add</button>
+					<button type="button" class="btn btn-secondary" id="cancelUserButton" @click="openUserList">Cancel</button>			
+				</div>
+			</fieldset>
+		</template>
+		<div id="modalDeleteUser" th:replace="modal :: modal(id='modalDeleteUser', title='Delete User', light=true, body=~{::modal-body}, footer=~{::modal-footer})">
+			<modal-body th:remove="tag">
+				<input type="hidden" id="deleteUserId">
+				Are you sure you want to delete user <span class="font-weight-bold">{{user.userId}} - {{user.username}}</span>?
+			</modal-body>
+			<modal-footer th:remove="tag">
+				<button type="button" class="btn btn-primary" id="deleteUserButton" @click="deleteUser">Delete</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+			</modal-footer>
+		</div>
+	</div>
+	<script type="text/javascript" th:inline="javascript">	
+		var getUsersUrl = /*[[@{/admin/ajax/get/users}]]*/ "/admin/ajax/get/users";
+		var usersDataTable = $("#users-table").DataTable({
+			"ajax": {
+				"url": getUsersUrl,
+				"dataSrc": null
+			},
+			"ordering": false,
+			"columns": [
+	            { "data": "userId" },
+	            { "data": "username" },
+	            { "data": "name.firstName" },
+	            { "data": "name.middleName" },
+	            { "data": "name.lastName" },
+	            { "data": "accountLocked",
+		          "render": function (data,type,row,meta) { return data == true ? "Y" : "N"; } 
+	            },
+	            { 
+		            "data": null,
+		            "render": function ( data, type, row, meta ) {
+				    	return `
+					    	<div class="dropdown">
+					    	  <button class="btn btn-sm dropdown-toggle no-icon" type="button" id="dropdownMenuUser` + data.userId + `" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></button>
+					    	  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+					    	  	<button type="button" class="dropdown-item btn" onclick='editUser(` + data.userId + `)'>Edit</button>
+					    	    <button type="button" class="dropdown-item btn" onclick='deleteUser(` + JSON.stringify(data) + `)'>Delete</button>
+					    	  </div>
+					    	</div> `;
+			    	},
+			    	"orderable": false,
+			    	"className": "text-right"
+			    }
+	        ],
+	        dom: "<'row'<'col-sm-12 d-flex justify-content-center'B>>" +
+		         "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+		         "<'row'<'col-sm-12'tr>>" +
+		         "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+	        buttons: [
+	            {
+	                text: 'Add User',
+	                action: function ( e, dt, node, config ) {
+	                	addUser();
+	                }
+	            }
+	        ]
+		});
+
+		// functions to work between Vue and Datatables
+		function addUser() {
+			vm.initializeUserDetails();
+		}
+
+		function editUser(userId) {
+			vm.initializeUserDetails(userId);
+		}
+
+		function deleteUser(user) {
+			vm.deleteUserPrompt(user.userId, user.username);
+		}
+		
+		var vm = new Vue({
+			el: "#userPage",
+			data: {
+				activePage: /*[[${param.userId == null ? "userList" : "userDetails"}]]*/ "userList",
+				user: {
+					userId: "",
+					password: "",
+					username: "",
+					firstName: "",
+					middleName: "",
+					lastName: "",
+					roles: []
+				},
+				token: $("meta[name='_csrf']").attr("content"),
+			    header: $("meta[name='_csrf_header']").attr("content")
+			},
+			computed: {
+				newUser: function() {
+					return this.user.userId == null || this.user.userId == "" ? true : false;
+				},
+				userDetailsTitle: function() {
+					return this.newUser ? "New User" : this.user.username;
+				},
+				showUserList: function() {
+					return this.activePage == "userList";
+				},
+				showUserDetails: function() {
+					return this.activePage == "userDetails";
+				}
+			},
+			mounted: function() {
+				if (this.activePage == "userDetails") {
+					this.getUser();
+				}
+			},
+			watch: {
+				activePage: function(newVal, oldVal) {
+					if (newVal == "userList") {
+						$("#userList").show();
+					}
+					else {
+						$("#userList").hide();
+					}
+				}
+			},
+			methods: {
+				initializeUserDetails: function(userId) {
+					if (userId == null) {
+						this.clearUserDetails();
+						this.openUserDetails();
+					}
+					else {
+						this.getUserDetails(userId);
+					}
+				},
+				openUserDetails: function() {
+					this.activePage = "userDetails";
+				},
+				openUserList: function(reloadUserList) {
+					if (reloadUserList) {
+						usersDataTable.ajax.reload();
+					}
+					this.activePage = "userList";
+				},
+				updateUserWithResponseData: function(data) {
+					var self = this;
+					self.user.userId = data.userId;
+				    self.user.username = data.username;
+				    self.user.firstName = data.name.firstName;
+				    self.user.middleName = data.name.middleName;
+				    self.user.lastName = data.name.lastName;
+				},
+				getUserDetails: function(userId) {
+					var self = this;
+					$.ajax({
+					    method: "POST",
+					    url: /*[[@{/admin/ajax/get/user}]]*/ "/admin/ajax/get/user",
+					    contentType: 'application/json',
+					    data: JSON.stringify({
+							userId: userId
+					    }),
+					    beforeSend: function(xhr) {
+					        xhr.setRequestHeader(self.header, self.token);
+						},
+						error: function(data) {
+							handleAjaxErrors(data);
+						},
+					    success: function(data) {
+						    self.updateUserWithResponseData(data);
+						    self.openUserDetails();
+						},
+						complete: function(data) {
+						}
+					});
+
+				},
+				clearUserDetails: function() {
+					var self = this;
+					self.user.userId = "";
+					self.user.password = "";
+				    self.user.username = "";
+				    self.user.firstName = "";
+				    self.user.middleName = "";
+				    self.user.lastName = "";
+				},
+				editUser: function() {
+					var self = this;
+					
+					$.ajax({
+					    method: "POST",
+					    url: [[@{/admin/ajax/edit/user}]],
+					    contentType: 'application/json',
+					    data: JSON.stringify({
+							userId: self.user.userId,
+							username: self.username,
+							firstName: self.user.firstName,
+							middleName: self.user.middleName,
+							lastName: self.user.lastName
+					    }),
+					    beforeSend: function(xhr) {
+					        xhr.setRequestHeader(self.header, self.token);
+						},
+						error: function(data) {
+							handleAjaxErrors(data);
+						},
+					    success: function(data) {
+							addAlert(AlertType.CONFIRMATION, "User \"" + userId + "\" was updated successfully.");
+							self.openUserList(true);
+						},
+						complete: function(data) {
+						}
+					});
+				},
+				addUser: function() {
+					var self = this;					
+					$.ajax({
+					    method: "POST",
+					    url: [[@{/admin/ajax/add/user}]],
+					    contentType: 'application/json',
+					    data: JSON.stringify({
+							username: self.user.username,
+							password: self.user.password,
+							firstName: self.user.firstName,
+							middleName: self.user.middleName,
+							lastName: self.user.lastName
+					    }),
+					    beforeSend: function(xhr) {
+					        xhr.setRequestHeader(self.header, self.token);
+						},
+						error: function(data) {
+							handleAjaxErrors(data);
+						},
+					    success: function(data) {
+							addAlert(AlertType.CONFIRMATION, "User \"" + self.user.username + "\" was added successfully.");
+							self.openUserList(true);
+						},
+						complete: function(data) {
+						}
+					});
+				},
+				deleteUserPrompt: function(userId, username) {
+					var self = this;
+					self.clearUserDetails();
+					self.user.userId = userId;
+					self.user.username = username;
+					$("#modalDeleteUser").modal("show");
+				},
+				deleteUser: function() {
+					var self = this;					
+					$.ajax({
+					    method: "POST",
+					    url: [[@{/admin/ajax/delete/user}]],
+					    contentType: 'application/json',
+					    data: JSON.stringify({
+							userId: self.user.userId
+					    }),
+					    beforeSend: function(xhr) {
+					        xhr.setRequestHeader(self.header, self.token);
+						},
+						error: function(data) {
+							handleAjaxErrorsModal("modalDeleteUser", data);
+						},
+					    success: function(data) {
+							addAlert(AlertType.CONFIRMATION, "User \"" + self.username + "\" was deleted successfully.");
+							$("#modalDeleteUser").modal("hide");
+							self.openUserList(true);
+						},
+						complete: function(data) {
+						}
+					});
+				}
+			}
+		});
+		
+	</script>
+</body>
+</html>
