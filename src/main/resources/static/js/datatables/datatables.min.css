@@ -30,7 +30,3 @@ table.dataTable{clear:both;margin-top:6px !important;margin-bottom:6px !importan
 .table tr:last-child td {
 	border-bottom: 1px solid #dee2e6;
 }
-
-table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
-	background-color: #c6c8ca;
-}

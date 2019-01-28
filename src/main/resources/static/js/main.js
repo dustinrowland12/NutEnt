@@ -8,6 +8,8 @@ var Counter = function() {
 	}
 }
 
+var globalCounter = new Counter();
+
 var AlertType = {
 	INFO: "info",
 	CONFIRMATION: "success",

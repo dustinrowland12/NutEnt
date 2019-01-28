@@ -52,8 +52,14 @@ public class AdminService {
 	}
 	
 	@Transactional
-	public User saveUser(User user) {
-		return userRepository.save(user);
+	public User updateUser(User user) {
+		User theUser = getUser(user.getUserId());
+		theUser.setUsername(user.getUsername());
+		theUser.getName().setFirstName(user.getName().getFirstName());
+		theUser.getName().setMiddleName(user.getName().getMiddleName());
+		theUser.getName().setLastName(user.getName().getLastName());
+		
+		return userRepository.save(theUser);
 	}
 	
 	@Transactional

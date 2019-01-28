@@ -1,14 +1,15 @@
 package entertainment.games.form.admin;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class UserForm {
 	private int userId;
-	@NotNull
-	@Size(min=1, max=256)
+	@NotBlank(message="Username must not be blank.")
+	@Size(min=1, max=256, message="Username must be between 1 and 256 characters.")
 	private String username;
-	@Size(min=1, max=256)
+	@Size(min=1, max=256, message="Password must be between 1 and 256 characters.")
 	private String password;
 	private String firstName;
 	private String middleName;

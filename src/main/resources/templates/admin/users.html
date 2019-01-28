@@ -5,63 +5,82 @@
 <head>
 	<link rel="stylesheet" type="text/css" th:href="@{/js/datatables/datatables.min.css}">
 	<script type="text/javascript" th:src="@{/js/datatables/datatables.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/components/paginated-table.js}"></script>
 	<title>Users</title>
 </head>
 <body layout:fragment="content">
-	<fieldset id="userList">
-		<legend>Users</legend>
-		<table id="users-table" class="table table-striped hover">
-			<thead>
-	            <tr>
-	                <th>User ID</th>
-	                <th>Username</th>
-	                <th>First Name</th>
-	                <th>Middle Name</th>
-	                <th>Last Name</th>
-	                <th>Account Locked</th>
-	                <th>&nbsp;</th>
-	            </tr>
-	        </thead>
-		</table>
-	</fieldset>	
 	<div id="userPage">
-		<template v-if="showUserDetails">
-			<fieldset>
-				<legend>{{userDetailsTitle}}</legend>
-				<div class="form-group" v-if="!newUser">
-					<label for="userId">User ID</label>
-					<input type="text" class="form-control" name="userId" id="userId" :value="user.userId" readonly>
+		<nav aria-label="breadcrumb">
+		    <ol class="breadcrumb">
+		    	<li class="breadcrumb-item" :class="[activePage == 'userList' ? 'active' : '']">
+		    		<template v-if="activePage != 'userList'">
+		    			<a href="#" @click="initializeUsers(true)">User List</a>
+		    		</template>
+		    		<template v-else>User List</template>
+		    	</li>
+		    	<li class="breadcrumb-item" v-if="this.activePage == 'userDetails'" :class="[activePage == 'userDetails' ? 'active' : '']">{{user.username}}</li>
+		    </ol>
+		</nav>
+		<div v-if="showUserList">
+			<fieldset id="userList">
+				<legend>Users</legend>
+				<paginated-table id="usersTable" :table-data="users" :columns="usersColumns" :action-column="usersActionColumn"></paginated-table>
+			</fieldset>	
+		</div>
+		<div class="col-12">
+			<div class="row" v-if="showUserDetails">
+				<div class="list-group col-2">
+					<button type="button" value="userData" @click="updateTab('userData')" class="list-group-item list-group-item-action list-group-item-dark" :class="[activeTab == 'userData' ? 'active' : '']">Profile</button>
+					<button type="button" value="userRoles" @click="updateTab('userRoles')" class="list-group-item list-group-item-action list-group-item-dark" :class="[activeTab == 'userRoles' ? 'active' : '']">Roles</button>
+					<button type="button" value="userActions" @click="updateTab('userActions')" class="list-group-item list-group-item-action list-group-item-dark" :class="[activeTab == 'userActions' ? 'active' : '']">Actions</button>
 				</div>
-				<div class="form-group">
-					<label for="username">Username</label>
-					<input type="text" class="form-control" name="username" id="username" v-model="user.username">
+				<div class="col-10">
+					<fieldset v-if="activeTab == 'userData'">
+						<legend>{{userDetailsTitle}}</legend>
+						<div class="form-group" v-if="!isNewUser">
+							<label for="userId">User ID</label>
+							<input type="text" class="form-control" name="userId" id="userId" :value="user.userId" readonly>
+						</div>
+						<div class="form-group">
+							<label for="username">Username</label>
+							<input type="text" class="form-control" name="username" id="username" v-model="user.username">
+						</div>
+						<div class="form-group" v-if="isNewUser">
+							<label for="password">Password</label>
+							<input type="password" class="form-control" name="password" id="password" v-model="user.password">
+						</div>
+						<div class="form-group">
+							<label for="firstName">First Name</label>
+							<input type="text" class="form-control" name="firstName" id="firstName" v-model="user.firstName">
+						</div>
+						<div class="form-group">
+							<label for="middleName">Middle Name</label>
+							<input type="text" class="form-control" name="middleName" id="middleName" v-model="user.middleName">
+						</div>
+						<div class="form-group">
+							<label for="lastName">Last Name</label>
+							<input type="text" class="form-control" name="lastName" id="lastName" v-model="user.lastName">
+						</div>
+						<div>
+							<button type="button" class="btn btn-primary" id="updateUserButton" @click="editUser" v-if="isNewUser == false">Update</button>
+							<button type="button" class="btn btn-primary" id="addUserButton" @click="addUser" v-if="isNewUser == true">Add</button>
+							<button type="button" class="btn btn-secondary" id="cancelUserButton" @click="openUserList">Cancel</button>			
+						</div>
+					</fieldset>
+					<fieldset v-if="activeTab == 'userRoles'">
+						<fieldset v-if="showUserRolesTable">
+							<legend>User Roles</legend>
+							<paginated-table id="userRolesTable" :table-data="user.roles" :columns="userRolesColumns" :action-column="userRolesActionColumn"></paginated-table>
+						</fieldset>
+					</fieldset>
+					<fieldset v-if="activeTab == 'userActions'">
+					
+					</fieldset>
 				</div>
-				<div class="form-group" v-if="newUser">
-					<label for="password">Password</label>
-					<input type="password" class="form-control" name="password" id="password" v-model="user.password">
-				</div>
-				<div class="form-group">
-					<label for="firstName">First Name</label>
-					<input type="text" class="form-control" name="firstName" id="firstName" v-model="user.firstName">
-				</div>
-				<div class="form-group">
-					<label for="middleName">Middle Name</label>
-					<input type="text" class="form-control" name="middleName" id="middleName" v-model="user.middleName">
-				</div>
-				<div class="form-group">
-					<label for="lastName">Last Name</label>
-					<input type="text" class="form-control" name="lastName" id="lastName" v-model="user.lastName">
-				</div>
-				<div>
-					<button type="button" class="btn btn-primary" id="updateUserButton" @click="editUser" v-if="newUser == false">Update</button>
-					<button type="button" class="btn btn-primary" id="addUserButton" @click="addUser" v-if="newUser == true">Add</button>
-					<button type="button" class="btn btn-secondary" id="cancelUserButton" @click="openUserList">Cancel</button>			
-				</div>
-			</fieldset>
-		</template>
-		<div id="modalDeleteUser" th:replace="modal :: modal(id='modalDeleteUser', title='Delete User', light=true, body=~{::modal-body}, footer=~{::modal-footer})">
+			</div>
+		</div>
+		<div id="modalDeleteUser" th:replace="modal :: modal(id='modalDeleteUser', title='Delete User', light=true, body=~{::#modalDeleteUser//modal-body}, footer=~{::#modalDeleteUser//modal-footer})">
 			<modal-body th:remove="tag">
-				<input type="hidden" id="deleteUserId">
 				Are you sure you want to delete user <span class="font-weight-bold">{{user.userId}} - {{user.username}}</span>?
 			</modal-body>
 			<modal-footer th:remove="tag">
@@ -69,71 +88,33 @@
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 			</modal-footer>
 		</div>
+		<div id="modalDeleteUserRole" th:replace="modal :: modal(id='modalDeleteUserRole', title='Delete User Role', light=true, body=~{::#modalDeleteUserRole//modal-body}, footer=~{::#modalDeleteUserRole//modal-footer})">
+			<modal-body th:remove="tag">
+				Are you sure you want to remove role <span class="font-weight-bold">{{userRole.roleId}} - {{userRole.role}}</span> from user <span class="font-weight-bold">{{user.username}}</span>?
+			</modal-body>
+			<modal-footer th:remove="tag">
+				<button type="button" class="btn btn-primary" id="deleteUserRoleButton" @click="deleteUserRole">Remove</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+			</modal-footer>
+		</div>
+		<div id="modalAddUserRole" th:replace="modal :: modal(id='modalAddUserRole', title='Add Role', light=true, body=~{::#modalAddUserRole//modal-body}, footer=~{::#modalAddUserRole//modal-footer})">
+			<modal-body th:remove="tag">
+				show drop-down
+			</modal-body>
+			<modal-footer th:remove="tag">
+				<button type="button" class="btn btn-primary" id="addUserRoleButton" @click="addUserRole">Add</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+			</modal-footer>
+		</div>
 	</div>
-	<script type="text/javascript" th:inline="javascript">	
-		var getUsersUrl = /*[[@{/admin/ajax/get/users}]]*/ "/admin/ajax/get/users";
-		var usersDataTable = $("#users-table").DataTable({
-			"ajax": {
-				"url": getUsersUrl,
-				"dataSrc": null
-			},
-			"ordering": false,
-			"columns": [
-	            { "data": "userId" },
-	            { "data": "username" },
-	            { "data": "name.firstName" },
-	            { "data": "name.middleName" },
-	            { "data": "name.lastName" },
-	            { "data": "accountLocked",
-		          "render": function (data,type,row,meta) { return data == true ? "Y" : "N"; } 
-	            },
-	            { 
-		            "data": null,
-		            "render": function ( data, type, row, meta ) {
-				    	return `
-					    	<div class="dropdown">
-					    	  <button class="btn btn-sm dropdown-toggle no-icon" type="button" id="dropdownMenuUser` + data.userId + `" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></button>
-					    	  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-					    	  	<button type="button" class="dropdown-item btn" onclick='editUser(` + data.userId + `)'>Edit</button>
-					    	    <button type="button" class="dropdown-item btn" onclick='deleteUser(` + JSON.stringify(data) + `)'>Delete</button>
-					    	  </div>
-					    	</div> `;
-			    	},
-			    	"orderable": false,
-			    	"className": "text-right"
-			    }
-	        ],
-	        dom: "<'row'<'col-sm-12 d-flex justify-content-center'B>>" +
-		         "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-		         "<'row'<'col-sm-12'tr>>" +
-		         "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-	        buttons: [
-	            {
-	                text: 'Add User',
-	                action: function ( e, dt, node, config ) {
-	                	addUser();
-	                }
-	            }
-	        ]
-		});
-
-		// functions to work between Vue and Datatables
-		function addUser() {
-			vm.initializeUserDetails();
-		}
-
-		function editUser(userId) {
-			vm.initializeUserDetails(userId);
-		}
-
-		function deleteUser(user) {
-			vm.deleteUserPrompt(user.userId, user.username);
-		}
-		
+	
+	<script type="text/javascript" th:inline="javascript">
 		var vm = new Vue({
 			el: "#userPage",
 			data: {
-				activePage: /*[[${param.userId == null ? "userList" : "userDetails"}]]*/ "userList",
+				activePage: "userList",
+				activeTab: "userData",
+				users: [],
 				user: {
 					userId: "",
 					password: "",
@@ -143,26 +124,62 @@
 					lastName: "",
 					roles: []
 				},
+				userRole: {
+					roleId: "",
+					role: ""
+				},
+				usersColumns: [],
+				usersActionColumn: null, 
+				userRolesColumns: [],
+				userRolesActionColumn: null,
 				token: $("meta[name='_csrf']").attr("content"),
 			    header: $("meta[name='_csrf_header']").attr("content")
 			},
 			computed: {
-				newUser: function() {
+				isNewUser: function() {
 					return this.user.userId == null || this.user.userId == "" ? true : false;
 				},
 				userDetailsTitle: function() {
-					return this.newUser ? "New User" : this.user.username;
+					return this.isNewUser ? "New User" : this.user.username;
 				},
 				showUserList: function() {
 					return this.activePage == "userList";
 				},
 				showUserDetails: function() {
 					return this.activePage == "userDetails";
+				},
+				showUserRolesTable: function() {
+					return !this.isNewUser;
 				}
 			},
 			mounted: function() {
-				if (this.activePage == "userDetails") {
-					this.getUser();
+				//populate the users table columns
+				this.usersColumns.push(new PaginatedTableColumn("User ID", "userId"));
+				this.usersColumns.push(new PaginatedTableColumn("Username", "username"));
+	            this.usersColumns.push(new PaginatedTableColumn("First Name", "name.firstName"));
+	            this.usersColumns.push(new PaginatedTableColumn("Middle Name", "name.middleName"));
+	            this.usersColumns.push(new PaginatedTableColumn("Last Name", "name.lastName"));
+	            this.usersColumns.push(new PaginatedTableColumn("Account Locked", "accountLocked"));
+				//populate the users table action column
+				this.usersActionColumn = new PaginatedTableActionColumn();
+				this.usersActionColumn.actions.push(new PaginatedTableAction("Edit User", this.initializeUserDetails));
+				this.usersActionColumn.actions.push(new PaginatedTableAction("Delete User", this.deleteUserPrompt));
+				//populate user roles table columns
+				this.userRolesColumns.push(new PaginatedTableColumn("Role ID", "roleId"));
+				this.userRolesColumns.push(new PaginatedTableColumn("Role Name", "role"));
+				//populate the action column for the roles table
+				this.userRolesActionColumn = new PaginatedTableActionColumn();
+				this.userRolesActionColumn.actions.push(new PaginatedTableAction("Remove Role", this.deleteUserRolePrompt));
+
+				//check if the user ID has been passed in as a URL param
+				var urlParamUserId = /*[[${param.userId == null ? null : param.userId}]]*/ null;
+				
+				if (this.urlParamUserId != null) {
+					this.getUserDetails(urlParamUserId);
+				}
+				else {
+					//initialize the users table
+					this.initializeUsers(true);
 				}
 			},
 			watch: {
@@ -176,23 +193,49 @@
 				}
 			},
 			methods: {
-				initializeUserDetails: function(userId) {
-					if (userId == null) {
+				initializeUsers: function(reloadUserList) {
+					if (reloadUserList || this.users().length == 0) {
+						this.getUsers();
+					}
+					else {
+						this.openUserList();
+					}
+				},
+				initializeUserDetails: function(rowData) {
+					if (rowData == null) {
 						this.clearUserDetails();
 						this.openUserDetails();
 					}
 					else {
-						this.getUserDetails(userId);
+						this.getUserDetails(rowData.userId);
 					}
 				},
 				openUserDetails: function() {
 					this.activePage = "userDetails";
 				},
-				openUserList: function(reloadUserList) {
-					if (reloadUserList) {
-						usersDataTable.ajax.reload();
-					}
+				openUserList: function() {
 					this.activePage = "userList";
+				},
+				getUsers: function() {
+					var self = this;
+					$.ajax({
+					    method: "GET",
+					    url: /*[[@{/admin/ajax/get/users}]]*/ "/admin/ajax/get/users",
+					    contentType: 'application/json',
+					    beforeSend: function(xhr) {
+					        xhr.setRequestHeader(self.header, self.token);
+						},
+						error: function(data) {
+							handleAjaxErrors(data);
+						},
+					    success: function(data) {
+						    self.users = data;
+						    self.openUserList();
+						},
+						complete: function(data) {
+						}
+					});
+
 				},
 				updateUserWithResponseData: function(data) {
 					var self = this;
@@ -201,6 +244,7 @@
 				    self.user.firstName = data.name.firstName;
 				    self.user.middleName = data.name.middleName;
 				    self.user.lastName = data.name.lastName;
+				    self.user.roles = data.roles;
 				},
 				getUserDetails: function(userId) {
 					var self = this;
@@ -234,6 +278,7 @@
 				    self.user.firstName = "";
 				    self.user.middleName = "";
 				    self.user.lastName = "";
+				    self.user.roles = [];
 				},
 				editUser: function() {
 					var self = this;
@@ -244,7 +289,7 @@
 					    contentType: 'application/json',
 					    data: JSON.stringify({
 							userId: self.user.userId,
-							username: self.username,
+							username: self.user.username,
 							firstName: self.user.firstName,
 							middleName: self.user.middleName,
 							lastName: self.user.lastName
@@ -256,7 +301,7 @@
 							handleAjaxErrors(data);
 						},
 					    success: function(data) {
-							addAlert(AlertType.CONFIRMATION, "User \"" + userId + "\" was updated successfully.");
+							addAlert(AlertType.CONFIRMATION, "User \"" + self.user.username + "\" was updated successfully.");
 							self.openUserList(true);
 						},
 						complete: function(data) {
@@ -290,11 +335,11 @@
 						}
 					});
 				},
-				deleteUserPrompt: function(userId, username) {
+				deleteUserPrompt: function(rowData) {
 					var self = this;
 					self.clearUserDetails();
-					self.user.userId = userId;
-					self.user.username = username;
+					self.user.userId = rowData.userId;
+					self.user.username = rowData.username;
 					$("#modalDeleteUser").modal("show");
 				},
 				deleteUser: function() {
@@ -313,13 +358,71 @@
 							handleAjaxErrorsModal("modalDeleteUser", data);
 						},
 					    success: function(data) {
-							addAlert(AlertType.CONFIRMATION, "User \"" + self.username + "\" was deleted successfully.");
+							addAlert(AlertType.CONFIRMATION, "User \"" + self.user.username + "\" was deleted successfully.");
 							$("#modalDeleteUser").modal("hide");
 							self.openUserList(true);
 						},
 						complete: function(data) {
 						}
 					});
+				},
+				addUserRole: function() {
+					var self = this;					
+					$.ajax({
+					    method: "POST",
+					    url: [[@{/admin/ajax/add/userrole}]],
+					    contentType: 'application/json',
+					    data: JSON.stringify({
+							userId: self.user.userId,
+							roleId: self.role.roleId
+					    }),
+					    beforeSend: function(xhr) {
+					        xhr.setRequestHeader(self.header, self.token);
+						},
+						error: function(data) {
+							handleAjaxErrors(data);
+						},
+					    success: function(data) {
+							addAlert(AlertType.CONFIRMATION, "User \"" + self.user.username + "\" was added successfully.");
+							self.openUserList(true);
+						},
+						complete: function(data) {
+						}
+					});
+				},
+				deleteUserRolePrompt: function(rowData) {
+					var self = this;
+					self.userRole.roleId = rowData.roleId;
+					self.userRole.role = rowData.role;
+					$("#modalDeleteUserRole").modal("show");
+				},
+				deleteUserRole: function() {
+					var self = this;					
+					$.ajax({
+					    method: "POST",
+					    url: [[@{/admin/ajax/delete/userrole}]],
+					    contentType: 'application/json',
+					    data: JSON.stringify({
+							userId: self.user.userId,
+							roleId: self.userRole.roleId
+					    }),
+					    beforeSend: function(xhr) {
+					        xhr.setRequestHeader(self.header, self.token);
+						},
+						error: function(data) {
+							handleAjaxErrorsModal("modalDeleteUserRole", data);
+						},
+					    success: function(data) {
+							addAlert(AlertType.CONFIRMATION, "User Role \"" + self.userRole.role + "\" was removed from User \"" + self.user.username + "\" successfully.");
+							$("#modalDeleteUser").modal("hide");
+							self.openUserList(true);
+						},
+						complete: function(data) {
+						}
+					});
+				},
+				updateTab: function(tab) {
+					this.activeTab = tab;
 				}
 			}
 		});

@@ -72,45 +72,20 @@
 				</nav>
 			</div>
 			<div class="content">
-				<div th:if="${isAdmin}" class="row">
-					<div class="list-group col-2">
-						<a th:href="@{/admin/users}" class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${tab_active == 'users' ? 'active' : ''}">Users</a>
-						<a th:href="@{/admin/roles}" class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${tab_active == 'roles' ? 'active' : ''}">Roles</a>
-						<a th:href="@{/admin/games}" class="list-group-item list-group-item-action list-group-item-dark" th:classappend="${tab_active == 'games' ? 'active' : ''}">Games</a>
-					</div>
-					<div class="list-group col-10">
-						<div id="systemMessages">
-							<th:block th:if="${MESSAGES != null}">
-								<div class="alert alert-info" role="alert" th:each="message : ${MESSAGES.informationals}">
-									[[${message.message}]]
-								</div>
-								<div class="alert alert-success" role="alert" th:each="message : ${MESSAGES.confirmations}">
-									[[${message.message}]]
-								</div>
-								<div class="alert alert-danger" role="alert" th:each="message : ${MESSAGES.alerts}">
-									[[${message.message}]]
-								</div>
-							</th:block>
+				<div id="systemMessages">
+					<th:block th:if="${MESSAGES != null}">
+						<div class="alert alert-info alert-dismissible fade show" role="alert" th:each="message : ${MESSAGES.informationals}">
+							[[${message.message}]] <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						</div>
-						<div layout:fragment="content"></div>
-					</div>
+						<div class="alert alert-success alert-dismissible fade show" role="alert" th:each="message : ${MESSAGES.confirmations}">
+							[[${message.message}]] <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						</div>
+						<div class="alert alert-danger alert-dismissible fade show" role="alert" th:each="message : ${MESSAGES.alerts}">
+							[[${message.message}]] <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						</div>
+					</th:block>
 				</div>
-				<th:block th:unless="${isAdmin}">
-					<div id="systemMessages">
-						<th:block th:if="${MESSAGES != null}">
-							<div class="alert alert-info alert-dismissible fade show" role="alert" th:each="message : ${MESSAGES.informationals}">
-								[[${message.message}]] <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							</div>
-							<div class="alert alert-success alert-dismissible fade show" role="alert" th:each="message : ${MESSAGES.confirmations}">
-								[[${message.message}]] <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							</div>
-							<div class="alert alert-danger alert-dismissible fade show" role="alert" th:each="message : ${MESSAGES.alerts}">
-								[[${message.message}]] <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							</div>
-						</th:block>
-					</div>
-					<div layout:fragment="content"></div>
-				<th:block>
+				<div layout:fragment="content"></div>
 			</div>
 			<footer class="footer">
 				<nav class="navbar fixed-bottom justify-content-center" th:classappend="${isAdmin} ? 'navbar-light bg-light' : 'navbar-dark bg-dark'">

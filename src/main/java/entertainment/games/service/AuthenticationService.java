@@ -150,26 +150,4 @@ public class AuthenticationService implements UserDetailsService {
 		return userDto;
 	}
 	
-	/* Now done with Repository
-	@Transactional
-	private User updateUnsuccessfulLoginAttempts(User user, Integer attempts) {
-		//update login attempts
-		user.setUnsuccessfulLoginAttempts(attempts);
-		if (user.getUnsuccessfulLoginAttempts() >= 3) {
-			user.setAccountLocked(true);
-			LuAccountLockedReasonCode reasonCode = luAccountLockedReasonCodeRepository.findByCode(AccountLockedReasonCode.EXCEEDED_MAX_LOGIN_ATTEMPTS);
-			user.setAccountLockedReasonCode(reasonCode);
-		}
-		else {
-			//if account is locked due to too many attempts, unlock it
-			if (user.isAccountLocked() == true 
-					&& user.getAccountLockedReasonCode() != null
-					&& user.getAccountLockedReasonCode().getCode().equals(AccountLockedReasonCode.EXCEEDED_MAX_LOGIN_ATTEMPTS)) {
-				user.setAccountLocked(false);
-				user.setAccountLockedReasonCode(null);
-			}
-		}
-		return user;
-	}
-	*/
 }

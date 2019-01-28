@@ -46,7 +46,6 @@ public class AdminController {
 	private static final String PAGE_ROLE_MANAGEMENT = "admin/role";
 	private static final String PAGE_USER_MANAGEMENT = "admin/user";
 	private static final String PAGE_GAME_MANAGEMENT = "admin/game";
-	private static final String REQUEST_ATTRIBUTE_TAB_ACTIVE = "tab_active";
 	
 	@GetMapping("/")
 	public String console(
@@ -60,7 +59,6 @@ public class AdminController {
 			Model model,
 			HttpServletRequest request) {
 		
-		model.addAttribute(REQUEST_ATTRIBUTE_TAB_ACTIVE, "roles");
 		return PAGE_ROLE_LIST;
 	}
 	
@@ -138,7 +136,6 @@ public class AdminController {
 			Model model,
 			HttpServletRequest request) {
 		
-		model.addAttribute(REQUEST_ATTRIBUTE_TAB_ACTIVE, "users");
 		return PAGE_USER_LIST;
 	}
 	
@@ -186,7 +183,7 @@ public class AdminController {
 		
 		User user = convertUserFormToUser(form);
 		try {
-			user = adminService.saveUser(user);
+			user = adminService.updateUser(user);
 		}
 		catch (DataRetrievalFailureException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User " + user.getUserId() + " does not exist or could not be found.", e);
@@ -223,7 +220,6 @@ public class AdminController {
 			Model model,
 			HttpServletRequest request) {
 		
-		model.addAttribute(REQUEST_ATTRIBUTE_TAB_ACTIVE, "games");
 		return PAGE_GAME_LIST;
 	}
 	
