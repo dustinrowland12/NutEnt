@@ -11,6 +11,9 @@ import nutent.entertainment.web.dto.UserDetailsImpl;
 public class AuditorAwareImpl implements AuditorAware<String> {
 
 	public Optional<String> getCurrentAuditor() {
-		return Optional.ofNullable(((UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+		if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserDetailsImpl) {
+			return Optional.ofNullable(((UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+		}
+		return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 	}
 }

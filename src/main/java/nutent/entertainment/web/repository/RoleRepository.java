@@ -12,7 +12,7 @@ import nutent.entertainment.web.entity.Role;
 @Transactional(readOnly = true)
 public interface RoleRepository extends JpaRepository<Role, Integer> {
 	
-	Role findByRole(String role);
+	Role findByRoleName(String roleName);
 	
 	List<Role> findAllByOrderByRoleIdAsc();	
 	

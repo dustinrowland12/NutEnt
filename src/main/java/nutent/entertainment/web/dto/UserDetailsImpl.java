@@ -23,7 +23,7 @@ public class UserDetailsImpl implements UserDetails {
         authorities = new ArrayList<>();
         if (user.getRoles() != null) {
         	user.getRoles().forEach(role -> {
-        		authorities.add(new SimpleGrantedAuthority(role.getRole()));
+        		authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
             });
         }
     }

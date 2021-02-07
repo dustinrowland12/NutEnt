@@ -34,3 +34,4 @@ build/
 
 ### Environment-specific settings ###
 /application.properties
+/*.sql

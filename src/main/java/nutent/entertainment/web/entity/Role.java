@@ -23,7 +23,7 @@ public class Role {
 	@SequenceGenerator(name = "roles_gen", sequenceName = "role_seq", allocationSize = 1)
 	private Integer roleId;
  
-    private String role;
+    private String roleName;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="USER_ROLE", joinColumns = { @JoinColumn(name = "ROLE_ID",nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "USER_ID", nullable = false) })
@@ -37,12 +37,12 @@ public class Role {
 		this.roleId = roleId;
 	}
     
-    public String getRole() {
-        return role;
+    public String getRoleName() {
+        return roleName;
     }
     
-	public void setRole(String role) {
-        this.role = role;
+	public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
 	@JsonIgnore

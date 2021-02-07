@@ -108,7 +108,7 @@ public class AuthenticationService implements UserDetailsService {
 		}
 		
 		//add games role
-		Role role = roleRepository.findByRole("games");
+		Role role = roleRepository.findByRoleName("games");
 		user.getRoles().add(role);
 		
 		return user;

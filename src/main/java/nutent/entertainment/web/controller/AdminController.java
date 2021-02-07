@@ -68,15 +68,15 @@ public class AdminController {
 			@Valid @RequestBody RoleForm form) {
 		
 		Role role = new Role();
-		role.setRole(form.getRoleName());
+		role.setRoleName(form.getRoleName());
 		try {
 			adminService.saveRole(role);
 		}
 		catch (DataIntegrityViolationException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRole() + " already exists.", e);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRoleName() + " already exists.", e);
 		}
 		catch (DataAccessException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRole() + " could not be added.", e);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role " + role.getRoleName() + " could not be added.", e);
 		}
 		return role;
 	}
@@ -90,7 +90,7 @@ public class AdminController {
 		
 		Role role = new Role();
 		role.setRoleId(form.getRoleId());
-		role.setRole(form.getRoleName());
+		role.setRoleName(form.getRoleName());
 		try {
 			role = adminService.saveRole(role);
 		}
