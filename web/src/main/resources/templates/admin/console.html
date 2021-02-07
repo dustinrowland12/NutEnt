@@ -1,0 +1,13 @@
+<html xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+  layout:decorate="~{layout}" th:with="isAdmin=true">
+  
+<head>
+	<link rel="stylesheet" type="text/css" th:href="@{/js/datatables/datatables.min.css}">
+	<script type="text/javascript" th:src="@{/js/datatables/datatables.min.js}"></script>
+	<title>Roles</title>
+</head>
+<body layout:fragment="content">
+	Welcome to the Admin Console!
+</body>
+</html>
